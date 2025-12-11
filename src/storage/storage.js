@@ -13,6 +13,7 @@ const PRODUCTOS_KEY = '@buchonapp_productos';
 const INVENTARIO_KEY = '@buchonapp_inventario';
 const PEDIDOS_KEY = '@buchonapp_pedidos';
 const CONTADOR_PEDIDOS_KEY = '@buchonapp_contador_pedidos';
+const ORDEN_ENTREGAS_KEY = '@buchonapp_orden_entregas';
 
 // ============ PEDIDOS ============
 
@@ -217,5 +218,39 @@ export const inicializarDatosEjemplo = async (datosEjemplo) => {
   } catch (error) {
     console.error('Error inicializando datos:', error);
     return false;
+  }
+};
+
+// ============ ORDEN DE ENTREGAS ============
+
+export const guardarOrdenEntregas = async (fecha, ordenIds) => {
+  try {
+    const ordenes = await obtenerTodasLasOrdenesEntregas();
+    ordenes[fecha] = ordenIds;
+    await AsyncStorage.setItem(ORDEN_ENTREGAS_KEY, JSON.stringify(ordenes));
+    return true;
+  } catch (error) {
+    console.error('Error guardando orden de entregas:', error);
+    return false;
+  }
+};
+
+export const obtenerOrdenEntregas = async (fecha) => {
+  try {
+    const ordenes = await obtenerTodasLasOrdenesEntregas();
+    return ordenes[fecha] || [];
+  } catch (error) {
+    console.error('Error obteniendo orden de entregas:', error);
+    return [];
+  }
+};
+
+export const obtenerTodasLasOrdenesEntregas = async () => {
+  try {
+    const data = await AsyncStorage.getItem(ORDEN_ENTREGAS_KEY);
+    return data ? JSON.parse(data) : {};
+  } catch (error) {
+    console.error('Error obteniendo todas las órdenes:', error);
+    return {};
   }
 };
