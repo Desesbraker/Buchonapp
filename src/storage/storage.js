@@ -1,5 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+/**
+ * ALMACENAMIENTO PERSISTENTE - BuchonApp
+ * 
+ * AsyncStorage guarda los datos en el almacenamiento interno del dispositivo.
+ * Los datos PERSISTEN entre actualizaciones de la app (updates).
+ * Los datos solo se eliminan si el usuario desinstala la aplicación.
+ */
+
 const CLIENTES_KEY = '@buchonapp_clientes';
 const PRODUCTOS_KEY = '@buchonapp_productos';
 const INVENTARIO_KEY = '@buchonapp_inventario';

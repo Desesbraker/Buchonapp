@@ -1,9 +1,44 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
 
-const ClienteCard = ({ cliente, onPress }) => {
+const ClienteCard = ({ cliente, onPress, onEdit, onDelete }) => {
+  
+  const handleLongPress = () => {
+    Alert.alert(
+      `Pedido #${cliente.numeroPedido}`,
+      `¿Qué deseas hacer con el pedido de ${cliente.nombre}?`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Editar',
+          onPress: () => onEdit && onEdit(cliente),
+        },
+        {
+          text: 'Eliminar',
+          onPress: () => {
+            Alert.alert(
+              'Confirmar eliminación',
+              `¿Estás seguro de eliminar el pedido de ${cliente.nombre}?`,
+              [
+                { text: 'Cancelar', style: 'cancel' },
+                { 
+                  text: 'Eliminar', 
+                  style: 'destructive',
+                  onPress: () => onDelete && onDelete(cliente),
+                },
+              ]
+            );
+          },
+          style: 'destructive',
+        },
+      ]
+    );
+  };
   const getEstadoColor = () => {
     switch (cliente.estado) {
       case 'pagado':
@@ -54,7 +89,13 @@ const ClienteCard = ({ cliente, onPress }) => {
   const montoDebe = cliente.montoTotal - cliente.montoAbonado;
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity 
+      style={styles.card} 
+      onPress={onPress} 
+      onLongPress={handleLongPress}
+      delayLongPress={500}
+      activeOpacity={0.7}
+    >
       <View style={styles.content}>
         {/* Información principal */}
         <View style={styles.infoContainer}>

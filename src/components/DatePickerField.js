@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   arrowBtn: {
     padding: 14,
-    backgroundColor: colors.primaryLight,
+    backgroundColor: 'transparent',
   },
   dateDisplay: {
     flex: 1,

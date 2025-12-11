@@ -4,19 +4,19 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Image,
   SafeAreaView,
   StatusBar,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../theme/colors';
-import { obtenerPedidos, obtenerClientes, inicializarDatosEjemplo } from '../storage/storage';
+import { obtenerPedidos, obtenerClientes, inicializarDatosEjemplo, eliminarPedido } from '../storage/storage';
 import { sampleClientes } from '../data/sampleData';
 import ClienteCard from '../components/ClienteCard';
 import SearchBar from '../components/SearchBar';
 import FilterBar from '../components/FilterBar';
-import ActionButtons from '../components/ActionButtons';
+import BottomNavBar from '../components/BottomNavBar';
 
 const HomeScreen = ({ navigation }) => {
   const [clientes, setClientes] = useState([]);
@@ -112,10 +112,27 @@ const HomeScreen = ({ navigation }) => {
     console.log('Cliente seleccionado:', cliente.nombre);
   };
 
+  const handleEditarCliente = (cliente) => {
+    // TODO: Navegar a pantalla de edición con datos del cliente
+    Alert.alert('Editar', `Funcionalidad de editar pedido de ${cliente.nombre} próximamente disponible`);
+  };
+
+  const handleEliminarCliente = async (cliente) => {
+    const resultado = await eliminarPedido(cliente.id);
+    if (resultado) {
+      Alert.alert('Éxito', 'Pedido eliminado correctamente');
+      cargarClientes(); // Recargar lista
+    } else {
+      Alert.alert('Error', 'No se pudo eliminar el pedido');
+    }
+  };
+
   const renderCliente = ({ item }) => (
     <ClienteCard 
       cliente={item} 
-      onPress={() => handleClientePress(item)} 
+      onPress={() => handleClientePress(item)}
+      onEdit={handleEditarCliente}
+      onDelete={handleEliminarCliente}
     />
   );
 
@@ -131,22 +148,10 @@ const HomeScreen = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       
-      {/* Header con Logo */}
+      {/* Título de la app */}
       <View style={styles.header}>
-        <Image
-          source={require('../../assets/logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <Text style={styles.headerTitle}>🌹 BuchonApp</Text>
       </View>
-
-      {/* Botones de Acción */}
-      <ActionButtons
-        onNuevoPedido={() => navigation.navigate('NuevoPedido')}
-        onPlanificar={() => navigation.navigate('Planificar')}
-        onProductos={() => navigation.navigate('Productos')}
-        onEstadisticas={() => navigation.navigate('Estadisticas')}
-      />
 
       {/* Buscador */}
       <SearchBar
@@ -184,6 +189,14 @@ const HomeScreen = ({ navigation }) => {
           />
         }
       />
+
+      {/* Barra de navegación inferior */}
+      <BottomNavBar
+        onNuevoPedido={() => navigation.navigate('NuevoPedido')}
+        onPlanificar={() => navigation.navigate('Planificar')}
+        onProductos={() => navigation.navigate('Productos')}
+        onEstadisticas={() => navigation.navigate('Estadisticas')}
+      />
     </SafeAreaView>
   );
 };
@@ -196,11 +209,13 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     paddingVertical: 12,
+    paddingTop: 8,
     backgroundColor: colors.background,
   },
-  logo: {
-    width: 150,
-    height: 60,
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.primary,
   },
   resultadosHeader: {
     paddingHorizontal: 16,
@@ -212,7 +227,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   listContainer: {
-    paddingBottom: 20,
+    paddingBottom: 110,
     flexGrow: 1,
   },
   emptyContainer: {

@@ -32,7 +32,7 @@ const NuevoPedidoScreen = ({ navigation }) => {
   const [fechaReserva, setFechaReserva] = useState(new Date().toISOString().split('T')[0]);
   const [fechaEntrega, setFechaEntrega] = useState('');
   const [plataforma, setPlataforma] = useState('');
-  const [telefono, setTelefono] = useState('');
+  const [telefono, setTelefono] = useState('+56 9 ');
   const [tipoEntrega, setTipoEntrega] = useState('envio');
   const [direccion, setDireccion] = useState('');
   const [detalles, setDetalles] = useState('');
