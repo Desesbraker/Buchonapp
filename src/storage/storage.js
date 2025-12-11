@@ -3,6 +3,78 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const CLIENTES_KEY = '@buchonapp_clientes';
 const PRODUCTOS_KEY = '@buchonapp_productos';
 const INVENTARIO_KEY = '@buchonapp_inventario';
+const PEDIDOS_KEY = '@buchonapp_pedidos';
+const CONTADOR_PEDIDOS_KEY = '@buchonapp_contador_pedidos';
+
+// ============ PEDIDOS ============
+
+export const obtenerSiguienteNumeroPedido = async () => {
+  try {
+    const data = await AsyncStorage.getItem(CONTADOR_PEDIDOS_KEY);
+    const contador = data ? parseInt(data) : 0;
+    const nuevoContador = contador + 1;
+    await AsyncStorage.setItem(CONTADOR_PEDIDOS_KEY, nuevoContador.toString());
+    return `P${String(nuevoContador).padStart(3, '0')}`;
+  } catch (error) {
+    console.error('Error obteniendo número de pedido:', error);
+    return `P${Date.now()}`;
+  }
+};
+
+export const guardarPedido = async (pedido) => {
+  try {
+    const pedidos = await obtenerPedidos();
+    const nuevoPedido = {
+      ...pedido,
+      id: Date.now().toString(),
+      fechaCreacion: new Date().toISOString(),
+    };
+    pedidos.unshift(nuevoPedido); // Agregar al inicio
+    await AsyncStorage.setItem(PEDIDOS_KEY, JSON.stringify(pedidos));
+    return nuevoPedido;
+  } catch (error) {
+    console.error('Error guardando pedido:', error);
+    return null;
+  }
+};
+
+export const obtenerPedidos = async () => {
+  try {
+    const data = await AsyncStorage.getItem(PEDIDOS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error obteniendo pedidos:', error);
+    return [];
+  }
+};
+
+export const actualizarPedido = async (pedidoActualizado) => {
+  try {
+    const pedidos = await obtenerPedidos();
+    const index = pedidos.findIndex(p => p.id === pedidoActualizado.id);
+    if (index !== -1) {
+      pedidos[index] = { ...pedidoActualizado, fechaActualizacion: new Date().toISOString() };
+      await AsyncStorage.setItem(PEDIDOS_KEY, JSON.stringify(pedidos));
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error actualizando pedido:', error);
+    return false;
+  }
+};
+
+export const eliminarPedido = async (pedidoId) => {
+  try {
+    const pedidos = await obtenerPedidos();
+    const pedidosFiltrados = pedidos.filter(p => p.id !== pedidoId);
+    await AsyncStorage.setItem(PEDIDOS_KEY, JSON.stringify(pedidosFiltrados));
+    return true;
+  } catch (error) {
+    console.error('Error eliminando pedido:', error);
+    return false;
+  }
+};
 
 // ============ CLIENTES ============
 

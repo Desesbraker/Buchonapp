@@ -10,6 +10,29 @@ Aquí encontrarás los APK compilados de la aplicación.
 
 ## Versiones
 
+### v1.1.0 - Pantalla Nuevo Pedido ✅ (ÚLTIMA)
+**Fecha:** 11 de Diciembre, 2025
+
+**Nuevas características:**
+- 📝 Pantalla completa de Nuevo Pedido
+- 🔢 Número de pedido automático (P001, P002...)
+- 👤 Datos del cliente: nombre, alias, teléfono
+- 📅 Fecha de reserva y fecha de entrega con selector
+- 📱 Selector de plataforma (WhatsApp, Instagram, Facebook, TikTok)
+- 🚗 Opción Envío/Retiro con dirección
+- 🗺️ Botón para buscar en Google Maps
+- 💰 Cálculo automático: Abono, Pendiente, Total
+- 💳 Medio de pago con opción de adjuntar comprobante
+- 📸 Opción de añadir imágenes al pedido
+- 🛒 Selector de productos desde base de datos
+- 🎀 Campo para frase de cinta personalizada
+- 💾 Guardado local de pedidos
+- 🔄 Los pedidos aparecen en el listado principal
+
+[📥 Descargar BuchonApp-v1.1.0.apk](./BuchonApp-v1.1.0.apk)
+
+---
+
 ### v1.0.0 - Primera versión ✅
 **Fecha:** 11 de Diciembre, 2025
 

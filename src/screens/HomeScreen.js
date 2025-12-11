@@ -9,8 +9,9 @@ import {
   StatusBar,
   RefreshControl,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../theme/colors';
-import { obtenerClientes, inicializarDatosEjemplo } from '../storage/storage';
+import { obtenerPedidos, obtenerClientes, inicializarDatosEjemplo } from '../storage/storage';
 import { sampleClientes } from '../data/sampleData';
 import ClienteCard from '../components/ClienteCard';
 import SearchBar from '../components/SearchBar';
@@ -34,10 +35,27 @@ const HomeScreen = ({ navigation }) => {
   });
 
   const cargarClientes = useCallback(async () => {
-    await inicializarDatosEjemplo(sampleClientes);
-    const data = await obtenerClientes();
-    setClientes(data);
+    // Primero cargar pedidos nuevos
+    const pedidos = await obtenerPedidos();
+    
+    // Luego cargar datos de ejemplo si no hay nada
+    if (pedidos.length === 0) {
+      await inicializarDatosEjemplo(sampleClientes);
+      const clientesEjemplo = await obtenerClientes();
+      setClientes(clientesEjemplo);
+    } else {
+      // Combinar pedidos nuevos con datos de ejemplo
+      const clientesEjemplo = await obtenerClientes();
+      setClientes([...pedidos, ...clientesEjemplo]);
+    }
   }, []);
+
+  // Recargar cuando la pantalla vuelva a tener foco
+  useFocusEffect(
+    useCallback(() => {
+      cargarClientes();
+    }, [cargarClientes])
+  );
 
   useEffect(() => {
     cargarClientes();
@@ -124,10 +142,10 @@ const HomeScreen = ({ navigation }) => {
 
       {/* Botones de Acción */}
       <ActionButtons
-        onNuevoPedido={() => console.log('Nuevo Pedido')}
-        onPlanificar={() => console.log('Planificar')}
-        onProductos={() => console.log('Productos')}
-        onEstadisticas={() => console.log('Estadísticas')}
+        onNuevoPedido={() => navigation.navigate('NuevoPedido')}
+        onPlanificar={() => navigation.navigate('Planificar')}
+        onProductos={() => navigation.navigate('Productos')}
+        onEstadisticas={() => navigation.navigate('Estadisticas')}
       />
 
       {/* Buscador */}

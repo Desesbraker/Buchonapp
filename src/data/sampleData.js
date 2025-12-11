@@ -1,4 +1,89 @@
 // Datos de ejemplo para mostrar en la app
+
+// Productos disponibles para seleccionar
+export const sampleProductos = [
+  {
+    id: '1',
+    nombre: 'Ramo Buchón Pequeño',
+    descripcion: 'Ramo de 25 rosas artificiales',
+    rosasBase: 25,
+    precio: 25000,
+    categoria: 'ramos',
+  },
+  {
+    id: '2',
+    nombre: 'Ramo Buchón Mediano',
+    descripcion: 'Ramo de 35 rosas artificiales',
+    rosasBase: 35,
+    precio: 35000,
+    categoria: 'ramos',
+  },
+  {
+    id: '3',
+    nombre: 'Ramo Buchón Grande',
+    descripcion: 'Ramo de 50 rosas artificiales',
+    rosasBase: 50,
+    precio: 45000,
+    categoria: 'ramos',
+  },
+  {
+    id: '4',
+    nombre: 'Ramo Buchón Premium',
+    descripcion: 'Ramo de 75 rosas artificiales',
+    rosasBase: 75,
+    precio: 60000,
+    categoria: 'ramos',
+  },
+  {
+    id: '5',
+    nombre: 'Ramo Buchón Deluxe',
+    descripcion: 'Ramo de 100 rosas artificiales',
+    rosasBase: 100,
+    precio: 80000,
+    categoria: 'ramos',
+  },
+  {
+    id: '6',
+    nombre: 'Peluche Pequeño',
+    descripcion: 'Peluche decorativo para agregar al ramo',
+    rosasBase: 0,
+    precio: 8000,
+    categoria: 'extras',
+  },
+  {
+    id: '7',
+    nombre: 'Peluche Grande',
+    descripcion: 'Peluche grande de regalo',
+    rosasBase: 0,
+    precio: 15000,
+    categoria: 'extras',
+  },
+  {
+    id: '8',
+    nombre: 'Caja Decorativa',
+    descripcion: 'Caja especial para presentación',
+    rosasBase: 0,
+    precio: 12000,
+    categoria: 'extras',
+  },
+  {
+    id: '9',
+    nombre: 'Chocolates',
+    descripcion: 'Caja de chocolates finos',
+    rosasBase: 0,
+    precio: 10000,
+    categoria: 'extras',
+  },
+  {
+    id: '10',
+    nombre: 'Globos',
+    descripcion: 'Set de globos decorativos',
+    rosasBase: 0,
+    precio: 5000,
+    categoria: 'extras',
+  },
+];
+
 export const sampleClientes = [
   {
     id: '1',
@@ -97,6 +182,7 @@ export const sampleClientes = [
     notas: 'Incluye tarjeta personalizada'
   }
 ];
+
 
 export const redesSociales = [
   { id: 'whatsapp', nombre: 'WhatsApp', color: '#25D366' },
