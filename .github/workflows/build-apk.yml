@@ -1,0 +1,47 @@
+name: Build and Release APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build APK
+        run: eas build -p android --profile preview --non-interactive --local --output ./buchonapp.apk
+
+      - name: Create lanzamientos directory
+        run: mkdir -p lanzamientos
+
+      - name: Move APK to lanzamientos
+        run: mv ./buchonapp.apk ./lanzamientos/BuchonApp-v1.0.0.apk
+
+      - name: Commit and push APK
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add lanzamientos/
+          git commit -m "🚀 Release BuchonApp v1.0.0" || echo "No changes to commit"
+          git push

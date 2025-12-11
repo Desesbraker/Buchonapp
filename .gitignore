@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Native
+android/app/build/
+android/.gradle/
+*.hprof
+
+# Misc
+.DS_Store
+*.pem
+*.log
+
+# Local env files
+.env*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Metro
+.metro-health-check*
+
+# Testing
+coverage/
+
+# Editor
+.idea/
+*.swp
+*.swo
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Temporary files
+*.tmp
+*.temp
