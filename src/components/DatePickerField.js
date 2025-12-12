@@ -8,7 +8,8 @@ const DatePickerField = ({ label, value, onChange, placeholder = 'Seleccionar fe
 
   const formatDate = (date) => {
     if (!date) return '';
-    const d = new Date(date);
+    // Agregar hora fija para evitar problemas de zona horaria
+    const d = new Date(date + 'T12:00:00');
     const dia = d.getDate().toString().padStart(2, '0');
     const mes = (d.getMonth() + 1).toString().padStart(2, '0');
     const año = d.getFullYear();
@@ -23,13 +24,15 @@ const DatePickerField = ({ label, value, onChange, placeholder = 'Seleccionar fe
   };
 
   const incrementDay = () => {
-    const current = value ? new Date(value) : new Date();
+    // Agregar T12:00:00 para evitar problemas de zona horaria
+    const current = value ? new Date(value + 'T12:00:00') : new Date();
     current.setDate(current.getDate() + 1);
     onChange(current.toISOString().split('T')[0]);
   };
 
   const decrementDay = () => {
-    const current = value ? new Date(value) : new Date();
+    // Agregar T12:00:00 para evitar problemas de zona horaria
+    const current = value ? new Date(value + 'T12:00:00') : new Date();
     current.setDate(current.getDate() - 1);
     onChange(current.toISOString().split('T')[0]);
   };

@@ -1,58 +1,52 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
 
 const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado, onToggleEntregado }) => {
+  const [menuVisible, setMenuVisible] = useState(false);
   
   const handleLongPress = () => {
-    const esElaborado = cliente.elaborado === true;
-    const esEntregado = cliente.entregado === true;
-    
-    // Usamos un array de botones que Android mostrará como lista
-    const botones = [
-      {
-        text: '✏️ Editar pedido',
-        onPress: () => onEdit && onEdit(cliente),
-      },
-      {
-        text: esElaborado ? '⏳ Marcar pendiente de elaborar' : '✅ Marcar como elaborado',
-        onPress: () => onToggleElaborado && onToggleElaborado(cliente),
-      },
-      {
-        text: esEntregado ? '📦 Marcar no entregado' : '🚚 Marcar como entregado',
-        onPress: () => onToggleEntregado && onToggleEntregado(cliente),
-      },
-      {
-        text: '🗑️ Eliminar pedido',
-        style: 'destructive',
-        onPress: () => {
-          Alert.alert(
-            'Confirmar eliminación',
-            `¿Estás seguro de eliminar el pedido de ${cliente.nombre}?`,
-            [
-              { text: 'Cancelar', style: 'cancel' },
-              { 
-                text: 'Eliminar', 
-                style: 'destructive',
-                onPress: () => onDelete && onDelete(cliente),
-              },
-            ]
-          );
-        },
-      },
-      {
-        text: 'Cancelar',
-        style: 'cancel',
-      },
-    ];
+    setMenuVisible(true);
+  };
 
+  const cerrarMenu = () => {
+    setMenuVisible(false);
+  };
+
+  const handleEditar = () => {
+    cerrarMenu();
+    onEdit && onEdit(cliente);
+  };
+
+  const handleToggleElaborado = () => {
+    cerrarMenu();
+    onToggleElaborado && onToggleElaborado(cliente);
+  };
+
+  const handleToggleEntregado = () => {
+    cerrarMenu();
+    onToggleEntregado && onToggleEntregado(cliente);
+  };
+
+  const handleEliminar = () => {
+    cerrarMenu();
     Alert.alert(
-      `Pedido #${cliente.numeroPedido}`,
-      `${cliente.nombre}\n${esElaborado ? '✅ Elaborado' : '⏳ Por elaborar'} | ${esEntregado ? '🚚 Entregado' : '📦 Por entregar'}`,
-      botones
+      'Confirmar eliminación',
+      `¿Estás seguro de eliminar el pedido de ${cliente.nombre}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Eliminar', 
+          style: 'destructive',
+          onPress: () => onDelete && onDelete(cliente),
+        },
+      ]
     );
   };
+
+  const esElaborado = cliente.elaborado === true;
+  const esEntregado = cliente.entregado === true;
   const getEstadoColor = () => {
     switch (cliente.estado) {
       case 'pagado':
@@ -207,6 +201,66 @@ const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado, on
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Modal de opciones */}
+      <Modal
+        visible={menuVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={cerrarMenu}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={cerrarMenu}
+        >
+          <View style={styles.modalContent}>
+            {/* Botón X para cerrar */}
+            <TouchableOpacity style={styles.closeBtn} onPress={cerrarMenu}>
+              <Ionicons name="close" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+
+            {/* Título */}
+            <Text style={styles.modalTitle}>Pedido #{cliente.numeroPedido}</Text>
+            <Text style={styles.modalSubtitle}>{cliente.nombre}</Text>
+            <View style={styles.modalBadges}>
+              <View style={[styles.modalBadge, { backgroundColor: esElaborado ? colors.success : colors.textLight }]}>
+                <Text style={styles.modalBadgeText}>{esElaborado ? '✅ Elaborado' : '⏳ Por elaborar'}</Text>
+              </View>
+              <View style={[styles.modalBadge, { backgroundColor: esEntregado ? colors.info : colors.textLight }]}>
+                <Text style={styles.modalBadgeText}>{esEntregado ? '🚚 Entregado' : '📦 Por entregar'}</Text>
+              </View>
+            </View>
+
+            {/* Opciones */}
+            <View style={styles.modalOptions}>
+              <TouchableOpacity style={styles.modalOption} onPress={handleEditar}>
+                <Ionicons name="create-outline" size={22} color={colors.primary} />
+                <Text style={styles.modalOptionText}>Editar pedido</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.modalOption} onPress={handleToggleElaborado}>
+                <Ionicons name={esElaborado ? "time-outline" : "checkmark-circle-outline"} size={22} color={colors.success} />
+                <Text style={styles.modalOptionText}>
+                  {esElaborado ? 'Marcar pendiente de elaborar' : 'Marcar como elaborado'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.modalOption} onPress={handleToggleEntregado}>
+                <Ionicons name={esEntregado ? "cube-outline" : "car-outline"} size={22} color={colors.info} />
+                <Text style={styles.modalOptionText}>
+                  {esEntregado ? 'Marcar no entregado' : 'Marcar como entregado'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={[styles.modalOption, styles.modalOptionDanger]} onPress={handleEliminar}>
+                <Ionicons name="trash-outline" size={22} color={colors.error} />
+                <Text style={[styles.modalOptionText, { color: colors.error }]}>Eliminar pedido</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </TouchableOpacity>
   );
 };
@@ -363,6 +417,84 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: colors.textSecondary,
     flex: 1,
+  },
+  // Estilos del Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderRadius: 20,
+    padding: 20,
+    width: '100%',
+    maxWidth: 340,
+    position: 'relative',
+  },
+  closeBtn: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  modalSubtitle: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  modalBadges: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 20,
+  },
+  modalBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+  },
+  modalBadgeText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  modalOptions: {
+    gap: 8,
+  },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    backgroundColor: colors.background,
+    borderRadius: 12,
+  },
+  modalOptionDanger: {
+    backgroundColor: colors.error + '10',
+  },
+  modalOptionText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: colors.textPrimary,
   },
 });
 
