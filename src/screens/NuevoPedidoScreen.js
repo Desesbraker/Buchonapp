@@ -44,11 +44,10 @@ const NuevoPedidoScreen = ({ navigation }) => {
   const [frasePersonalizada, setFrasePersonalizada] = useState('');
   const [productosDisponibles, setProductosDisponibles] = useState([]);
   const [guardando, setGuardando] = useState(false);
+  const [totalManual, setTotalManual] = useState('');
 
   // Calcular totales
-  const total = productosSeleccionados.reduce((sum, item) => {
-    return sum + (item.producto.precio || 0) * item.cantidad;
-  }, 0);
+  const total = totalManual ? (parseInt(totalManual) || 0) : 0;
   const abonoNum = parseInt(abono) || 0;
   const pendiente = total - abonoNum;
 
@@ -96,8 +95,8 @@ const NuevoPedidoScreen = ({ navigation }) => {
       Alert.alert('Error', 'La dirección es obligatoria para envío');
       return false;
     }
-    if (productosSeleccionados.length === 0) {
-      Alert.alert('Error', 'Debe agregar al menos un producto');
+    if (!totalManual || parseInt(totalManual) <= 0) {
+      Alert.alert('Error', 'Debe ingresar el total del pedido');
       return false;
     }
     return true;
@@ -163,6 +162,7 @@ const NuevoPedidoScreen = ({ navigation }) => {
                 setImagenesAdicionales([]);
                 setProductosSeleccionados([]);
                 setFrasePersonalizada('');
+                setTotalManual('');
               },
             },
             {
@@ -301,6 +301,16 @@ const NuevoPedidoScreen = ({ navigation }) => {
             <View style={styles.row}>
               <View style={styles.thirdField}>
                 <InputField
+                  label="Total *"
+                  value={totalManual}
+                  onChangeText={setTotalManual}
+                  placeholder="0"
+                  keyboardType="numeric"
+                  prefix="$"
+                />
+              </View>
+              <View style={styles.thirdField}>
+                <InputField
                   label="Abono"
                   value={abono}
                   onChangeText={setAbono}
@@ -313,14 +323,6 @@ const NuevoPedidoScreen = ({ navigation }) => {
                 <InputField
                   label="Pendiente"
                   value={pendiente.toLocaleString()}
-                  editable={false}
-                  prefix="$"
-                />
-              </View>
-              <View style={styles.thirdField}>
-                <InputField
-                  label="Total"
-                  value={total.toLocaleString()}
                   editable={false}
                   prefix="$"
                 />

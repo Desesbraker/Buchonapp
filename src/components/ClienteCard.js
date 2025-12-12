@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
 
-const ClienteCard = ({ cliente, onPress, onEdit, onDelete }) => {
+const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado }) => {
   
   const handleLongPress = () => {
+    const esElaborado = cliente.elaborado === true;
     Alert.alert(
       `Pedido #${cliente.numeroPedido}`,
       `¿Qué deseas hacer con el pedido de ${cliente.nombre}?`,
@@ -13,6 +14,10 @@ const ClienteCard = ({ cliente, onPress, onEdit, onDelete }) => {
         {
           text: 'Cancelar',
           style: 'cancel',
+        },
+        {
+          text: esElaborado ? '⏳ Pendiente de elaborar' : '✅ Marcar elaborado',
+          onPress: () => onToggleElaborado && onToggleElaborado(cliente),
         },
         {
           text: 'Editar',
@@ -90,12 +95,20 @@ const ClienteCard = ({ cliente, onPress, onEdit, onDelete }) => {
 
   return (
     <TouchableOpacity 
-      style={styles.card} 
+      style={[styles.card, cliente.elaborado && styles.cardElaborado]} 
       onPress={onPress} 
       onLongPress={handleLongPress}
       delayLongPress={500}
       activeOpacity={0.7}
     >
+      {/* Badge de elaborado */}
+      {cliente.elaborado && (
+        <View style={styles.elaboradoBadge}>
+          <Ionicons name="checkmark-circle" size={14} color="#FFF" />
+          <Text style={styles.elaboradoText}>Elaborado</Text>
+        </View>
+      )}
+      
       <View style={styles.content}>
         {/* Información principal */}
         <View style={styles.infoContainer}>
@@ -175,6 +188,28 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 6,
     ...shadows.medium,
+  },
+  cardElaborado: {
+    borderWidth: 2,
+    borderColor: colors.success,
+  },
+  elaboradoBadge: {
+    position: 'absolute',
+    top: -8,
+    right: 16,
+    backgroundColor: colors.success,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    zIndex: 1,
+  },
+  elaboradoText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: '700',
   },
   content: {
     flexDirection: 'row',

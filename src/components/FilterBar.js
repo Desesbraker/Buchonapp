@@ -19,6 +19,8 @@ const FilterChip = ({ label, selected, onPress, color }) => (
 
 const FilterBar = ({ filtros, onToggleFiltro }) => {
   const filtrosConfig = [
+    { key: 'elaborado', label: '✅ Elaborado', color: colors.success },
+    { key: 'pendiente_elaborar', label: '⏳ Por elaborar', color: '#9E9E9E' },
     { key: 'abono_pendiente', label: 'Abono Pendiente', color: colors.warning },
     { key: 'no_pagado', label: 'No Pagado', color: colors.error },
     { key: 'pagado', label: 'Pagado', color: colors.success },

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../theme/colors';
-import { obtenerPedidos, obtenerClientes, inicializarDatosEjemplo, eliminarPedido } from '../storage/storage';
+import { obtenerPedidos, obtenerClientes, inicializarDatosEjemplo, eliminarPedido, actualizarPedido } from '../storage/storage';
 import { sampleClientes } from '../data/sampleData';
 import ClienteCard from '../components/ClienteCard';
 import SearchBar from '../components/SearchBar';
@@ -28,6 +28,8 @@ const HomeScreen = ({ navigation }) => {
     no_pagado: false,
     pagado: false,
     por_fecha: false,
+    elaborado: false,
+    pendiente_elaborar: false,
     instagram: false,
     whatsapp: false,
     facebook: false,
@@ -89,6 +91,13 @@ const HomeScreen = ({ navigation }) => {
       resultado = resultado.filter(cliente => redesActivas.includes(cliente.redSocial));
     }
 
+    // Filtrar por estado de elaboración
+    if (filtros.elaborado && !filtros.pendiente_elaborar) {
+      resultado = resultado.filter(cliente => cliente.elaborado === true);
+    } else if (filtros.pendiente_elaborar && !filtros.elaborado) {
+      resultado = resultado.filter(cliente => cliente.elaborado !== true);
+    }
+
     // Ordenar por fecha si está activo
     if (filtros.por_fecha) {
       resultado.sort((a, b) => new Date(a.fechaEntrega) - new Date(b.fechaEntrega));
@@ -127,12 +136,30 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const handleToggleElaborado = async (cliente) => {
+    const nuevoEstado = !cliente.elaborado;
+    const pedidoActualizado = { ...cliente, elaborado: nuevoEstado };
+    const resultado = await actualizarPedido(pedidoActualizado);
+    if (resultado) {
+      Alert.alert(
+        nuevoEstado ? '✅ Elaborado' : '⏳ Pendiente',
+        nuevoEstado 
+          ? `El pedido de ${cliente.nombre} ha sido marcado como elaborado`
+          : `El pedido de ${cliente.nombre} está pendiente de elaborar`
+      );
+      cargarClientes();
+    } else {
+      Alert.alert('Error', 'No se pudo actualizar el pedido');
+    }
+  };
+
   const renderCliente = ({ item }) => (
     <ClienteCard 
       cliente={item} 
       onPress={() => handleClientePress(item)}
       onEdit={handleEditarCliente}
       onDelete={handleEliminarCliente}
+      onToggleElaborado={handleToggleElaborado}
     />
   );
 
