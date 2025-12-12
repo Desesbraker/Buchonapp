@@ -8,45 +8,49 @@ const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado, on
   const handleLongPress = () => {
     const esElaborado = cliente.elaborado === true;
     const esEntregado = cliente.entregado === true;
+    
+    // Usamos un array de botones que Android mostrará como lista
+    const botones = [
+      {
+        text: '✏️ Editar pedido',
+        onPress: () => onEdit && onEdit(cliente),
+      },
+      {
+        text: esElaborado ? '⏳ Marcar pendiente de elaborar' : '✅ Marcar como elaborado',
+        onPress: () => onToggleElaborado && onToggleElaborado(cliente),
+      },
+      {
+        text: esEntregado ? '📦 Marcar no entregado' : '🚚 Marcar como entregado',
+        onPress: () => onToggleEntregado && onToggleEntregado(cliente),
+      },
+      {
+        text: '🗑️ Eliminar pedido',
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert(
+            'Confirmar eliminación',
+            `¿Estás seguro de eliminar el pedido de ${cliente.nombre}?`,
+            [
+              { text: 'Cancelar', style: 'cancel' },
+              { 
+                text: 'Eliminar', 
+                style: 'destructive',
+                onPress: () => onDelete && onDelete(cliente),
+              },
+            ]
+          );
+        },
+      },
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+    ];
+
     Alert.alert(
       `Pedido #${cliente.numeroPedido}`,
-      `¿Qué deseas hacer con el pedido de ${cliente.nombre}?`,
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: esElaborado ? '⏳ Pendiente de elaborar' : '✅ Marcar elaborado',
-          onPress: () => onToggleElaborado && onToggleElaborado(cliente),
-        },
-        {
-          text: esEntregado ? '📦 Marcar no entregado' : '🚚 Marcar entregado',
-          onPress: () => onToggleEntregado && onToggleEntregado(cliente),
-        },
-        {
-          text: 'Editar',
-          onPress: () => onEdit && onEdit(cliente),
-        },
-        {
-          text: 'Eliminar',
-          onPress: () => {
-            Alert.alert(
-              'Confirmar eliminación',
-              `¿Estás seguro de eliminar el pedido de ${cliente.nombre}?`,
-              [
-                { text: 'Cancelar', style: 'cancel' },
-                { 
-                  text: 'Eliminar', 
-                  style: 'destructive',
-                  onPress: () => onDelete && onDelete(cliente),
-                },
-              ]
-            );
-          },
-          style: 'destructive',
-        },
-      ]
+      `${cliente.nombre}\n${esElaborado ? '✅ Elaborado' : '⏳ Por elaborar'} | ${esEntregado ? '🚚 Entregado' : '📦 Por entregar'}`,
+      botones
     );
   };
   const getEstadoColor = () => {

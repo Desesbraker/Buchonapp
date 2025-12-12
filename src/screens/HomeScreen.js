@@ -31,6 +31,8 @@ const HomeScreen = ({ navigation }) => {
     por_fecha: false,
     elaborado: false,
     pendiente_elaborar: false,
+    entregado: false,
+    pendiente_entregar: false,
     instagram: false,
     whatsapp: false,
     facebook: false,
@@ -97,6 +99,13 @@ const HomeScreen = ({ navigation }) => {
       resultado = resultado.filter(cliente => cliente.elaborado === true);
     } else if (filtros.pendiente_elaborar && !filtros.elaborado) {
       resultado = resultado.filter(cliente => cliente.elaborado !== true);
+    }
+
+    // Filtrar por estado de entrega
+    if (filtros.entregado && !filtros.pendiente_entregar) {
+      resultado = resultado.filter(cliente => cliente.entregado === true);
+    } else if (filtros.pendiente_entregar && !filtros.entregado) {
+      resultado = resultado.filter(cliente => cliente.entregado !== true);
     }
 
     // Ordenar por fecha si está activo

@@ -21,6 +21,8 @@ const FilterBar = ({ filtros, onToggleFiltro }) => {
   const filtrosConfig = [
     { key: 'elaborado', label: '✅ Elaborado', color: colors.success },
     { key: 'pendiente_elaborar', label: '⏳ Por elaborar', color: '#9E9E9E' },
+    { key: 'entregado', label: '🚚 Entregado', color: colors.info },
+    { key: 'pendiente_entregar', label: '📦 Por entregar', color: '#FF9800' },
     { key: 'abono_pendiente', label: 'Abono Pendiente', color: colors.warning },
     { key: 'no_pagado', label: 'No Pagado', color: colors.error },
     { key: 'pagado', label: 'Pagado', color: colors.success },

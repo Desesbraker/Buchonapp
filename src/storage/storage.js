@@ -15,6 +15,7 @@ const INVENTARIO_KEY = '@buchonapp_inventario';
 const PEDIDOS_KEY = '@buchonapp_pedidos';
 const CONTADOR_PEDIDOS_KEY = '@buchonapp_contador_pedidos';
 const ORDEN_ENTREGAS_KEY = '@buchonapp_orden_entregas';
+const GASTOS_KEY = '@buchonapp_gastos';
 
 // ============ PEDIDOS ============
 
@@ -349,5 +350,46 @@ export const obtenerTodasLasOrdenesEntregas = async () => {
   } catch (error) {
     console.error('Error obteniendo todas las órdenes:', error);
     return {};
+  }
+};
+
+// ============ GASTOS ============
+
+export const guardarGasto = async (gasto) => {
+  try {
+    const gastos = await obtenerGastos();
+    const nuevoGasto = {
+      ...gasto,
+      id: Date.now().toString(),
+      fechaCreacion: new Date().toISOString(),
+    };
+    gastos.unshift(nuevoGasto);
+    await AsyncStorage.setItem(GASTOS_KEY, JSON.stringify(gastos));
+    return nuevoGasto;
+  } catch (error) {
+    console.error('Error guardando gasto:', error);
+    return null;
+  }
+};
+
+export const obtenerGastos = async () => {
+  try {
+    const data = await AsyncStorage.getItem(GASTOS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error obteniendo gastos:', error);
+    return [];
+  }
+};
+
+export const eliminarGasto = async (gastoId) => {
+  try {
+    const gastos = await obtenerGastos();
+    const gastosFiltrados = gastos.filter(g => g.id !== gastoId);
+    await AsyncStorage.setItem(GASTOS_KEY, JSON.stringify(gastosFiltrados));
+    return true;
+  } catch (error) {
+    console.error('Error eliminando gasto:', error);
+    return false;
   }
 };

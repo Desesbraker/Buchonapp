@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dateText: {
-    fontSize: 12,
+    fontSize: 10,
     color: colors.textPrimary,
     fontWeight: '500',
   },

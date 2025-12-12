@@ -35,6 +35,7 @@ const NuevoPedidoScreen = ({ navigation, route }) => {
   const [alias, setAlias] = useState('');
   const [fechaReserva, setFechaReserva] = useState(new Date().toISOString().split('T')[0]);
   const [fechaEntrega, setFechaEntrega] = useState('');
+  const [horaEntrega, setHoraEntrega] = useState('');
   const [plataforma, setPlataforma] = useState('');
   const [telefono, setTelefono] = useState('+56 9 ');
   const [tipoEntrega, setTipoEntrega] = useState('envio');
@@ -73,6 +74,7 @@ const NuevoPedidoScreen = ({ navigation, route }) => {
         setAlias(pedidoEditar.alias || '');
         setFechaReserva(pedidoEditar.fechaReserva || new Date().toISOString().split('T')[0]);
         setFechaEntrega(pedidoEditar.fechaEntrega || '');
+        setHoraEntrega(pedidoEditar.horaEntrega || '');
         setPlataforma(pedidoEditar.plataforma || pedidoEditar.redSocial || '');
         setTelefono(pedidoEditar.telefono || '+56 9 ');
         setTipoEntrega(pedidoEditar.tipoEntrega || 'envio');
@@ -142,6 +144,7 @@ const NuevoPedidoScreen = ({ navigation, route }) => {
         alias: alias.trim(),
         fechaReserva,
         fechaEntrega,
+        horaEntrega: horaEntrega || '12:00',
         plataforma,
         telefono: telefono.trim(),
         tipoEntrega,
@@ -157,7 +160,6 @@ const NuevoPedidoScreen = ({ navigation, route }) => {
         frasePersonalizada: frasePersonalizada.trim(),
         estado,
         redSocial: plataforma, // Para compatibilidad con el listado
-        horaEntrega: pedidoEditar?.horaEntrega || '12:00', // Mantener hora si editando
       };
 
       let resultado;
@@ -204,6 +206,7 @@ const NuevoPedidoScreen = ({ navigation, route }) => {
                   setAlias('');
                   setFechaReserva(new Date().toISOString().split('T')[0]);
                   setFechaEntrega('');
+                  setHoraEntrega('');
                   setPlataforma('');
                   setTelefono('');
                   setTipoEntrega('envio');
@@ -302,6 +305,28 @@ const NuevoPedidoScreen = ({ navigation, route }) => {
               </View>
             </View>
 
+            {/* Selector de hora de entrega */}
+            <View style={styles.horaContainer}>
+              <Text style={styles.horaLabel}>Hora de entrega</Text>
+              <View style={styles.horaButtons}>
+                {['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'].map((hora) => (
+                  <TouchableOpacity
+                    key={hora}
+                    style={[
+                      styles.horaBtn,
+                      horaEntrega === hora && styles.horaBtnSelected
+                    ]}
+                    onPress={() => setHoraEntrega(hora)}
+                  >
+                    <Text style={[
+                      styles.horaBtnText,
+                      horaEntrega === hora && styles.horaBtnTextSelected
+                    ]}>{hora}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
             <PlataformaSelector
               selected={plataforma}
               onSelect={setPlataforma}
@@ -383,12 +408,36 @@ const NuevoPedidoScreen = ({ navigation, route }) => {
               </View>
             </View>
 
-            <InputField
-              label="Medio de pago"
-              value={medioPago}
-              onChangeText={setMedioPago}
-              placeholder="Transferencia, efectivo, etc."
-            />
+            {/* Selector de medio de pago */}
+            <View style={styles.medioPagoContainer}>
+              <Text style={styles.medioPagoLabel}>Medio de pago</Text>
+              <View style={styles.medioPagoButtons}>
+                {[
+                  { id: 'transferencia', nombre: 'Transferencia', icon: 'card-outline' },
+                  { id: 'efectivo', nombre: 'Efectivo', icon: 'cash-outline' },
+                  { id: 'otros', nombre: 'Otros', icon: 'ellipsis-horizontal' },
+                ].map((opcion) => (
+                  <TouchableOpacity
+                    key={opcion.id}
+                    style={[
+                      styles.medioPagoBtn,
+                      medioPago === opcion.id && styles.medioPagoBtnSelected
+                    ]}
+                    onPress={() => setMedioPago(opcion.id)}
+                  >
+                    <Ionicons 
+                      name={opcion.icon} 
+                      size={20} 
+                      color={medioPago === opcion.id ? colors.textOnPrimary : colors.primary} 
+                    />
+                    <Text style={[
+                      styles.medioPagoBtnText,
+                      medioPago === opcion.id && styles.medioPagoBtnTextSelected
+                    ]}>{opcion.nombre}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
             <ImageSelector
               label="Comprobante de pago"
@@ -604,6 +653,78 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 40,
+  },
+  // Estilos para selector de hora
+  horaContainer: {
+    marginBottom: 16,
+  },
+  horaLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: 10,
+  },
+  horaButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  horaBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: colors.primaryLight,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  horaBtnSelected: {
+    backgroundColor: colors.primary,
+  },
+  horaBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  horaBtnTextSelected: {
+    color: colors.textOnPrimary,
+  },
+  // Estilos para selector de medio de pago
+  medioPagoContainer: {
+    marginBottom: 16,
+  },
+  medioPagoLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: 10,
+  },
+  medioPagoButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  medioPagoBtn: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: colors.primaryLight,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    gap: 6,
+  },
+  medioPagoBtnSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  medioPagoBtnText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  medioPagoBtnTextSelected: {
+    color: colors.textOnPrimary,
   },
 });
 

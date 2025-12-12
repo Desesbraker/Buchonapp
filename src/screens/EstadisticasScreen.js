@@ -8,11 +8,13 @@ import {
   StatusBar,
   Dimensions,
   Platform,
+  TextInput,
+  Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
-import { obtenerPedidos, obtenerProductos, obtenerCategorias } from '../storage/storage';
+import { obtenerPedidos, obtenerProductos, obtenerCategorias, obtenerGastos, guardarGasto, eliminarGasto } from '../storage/storage';
 import BottomNavBar from '../components/BottomNavBar';
 
 const { width } = Dimensions.get('window');
@@ -23,14 +25,22 @@ const EstadisticasScreen = ({ navigation }) => {
   const [categorias, setCategorias] = useState([]);
   const [periodoActivo, setPeriodoActivo] = useState('mes');
   const [stats, setStats] = useState({});
+  
+  // Estados para gastos
+  const [gastos, setGastos] = useState([]);
+  const [nuevoGastoDescripcion, setNuevoGastoDescripcion] = useState('');
+  const [nuevoGastoMonto, setNuevoGastoMonto] = useState('');
+  const [mostrarFormGasto, setMostrarFormGasto] = useState(false);
 
   const cargarDatos = useCallback(async () => {
     const peds = await obtenerPedidos();
     const prods = await obtenerProductos();
     const cats = await obtenerCategorias();
+    const gasts = await obtenerGastos();
     setPedidos(peds);
     setProductos(prods);
     setCategorias(cats);
+    setGastos(gasts);
   }, []);
 
   useFocusEffect(
@@ -156,6 +166,55 @@ const EstadisticasScreen = ({ navigation }) => {
 
   const formatearMonto = (monto) => {
     return Math.round(monto).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  // Filtrar gastos del mes actual
+  const gastosDelMes = gastos.filter(g => {
+    const fecha = new Date(g.fechaCreacion);
+    const ahora = new Date();
+    return fecha.getMonth() === ahora.getMonth() && fecha.getFullYear() === ahora.getFullYear();
+  });
+
+  const totalGastosDelMes = gastosDelMes.reduce((sum, g) => sum + (parseFloat(g.monto) || 0), 0);
+
+  const handleAgregarGasto = async () => {
+    if (!nuevoGastoDescripcion.trim() || !nuevoGastoMonto.trim()) {
+      Alert.alert('Error', 'Completa la descripción y el monto del gasto');
+      return;
+    }
+    
+    const gasto = {
+      descripcion: nuevoGastoDescripcion.trim(),
+      monto: parseFloat(nuevoGastoMonto) || 0,
+    };
+    
+    const resultado = await guardarGasto(gasto);
+    if (resultado) {
+      setGastos([resultado, ...gastos]);
+      setNuevoGastoDescripcion('');
+      setNuevoGastoMonto('');
+      setMostrarFormGasto(false);
+    }
+  };
+
+  const handleEliminarGasto = async (gastoId) => {
+    Alert.alert(
+      'Eliminar Gasto',
+      '¿Estás seguro de eliminar este gasto?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            const resultado = await eliminarGasto(gastoId);
+            if (resultado) {
+              setGastos(gastos.filter(g => g.id !== gastoId));
+            }
+          }
+        }
+      ]
+    );
   };
 
   const getPlataformaIcon = (plat) => {
@@ -394,6 +453,101 @@ const EstadisticasScreen = ({ navigation }) => {
         {/* Categorías */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>📁 Categorías: {stats.totalCategorias || 0}</Text>
+        </View>
+
+        {/* Sección de Gastos del Mes */}
+        <View style={styles.section}>
+          <View style={styles.gastosTitleRow}>
+            <Text style={styles.sectionTitle}>💸 Gastos del Mes</Text>
+            <TouchableOpacity 
+              style={styles.addGastoBtn}
+              onPress={() => setMostrarFormGasto(!mostrarFormGasto)}
+            >
+              <Ionicons name={mostrarFormGasto ? "close" : "add"} size={20} color={colors.textOnPrimary} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Formulario para agregar gasto */}
+          {mostrarFormGasto && (
+            <View style={styles.gastoForm}>
+              <TextInput
+                style={styles.gastoInput}
+                placeholder="Descripción del gasto"
+                value={nuevoGastoDescripcion}
+                onChangeText={setNuevoGastoDescripcion}
+                placeholderTextColor={colors.textSecondary}
+              />
+              <View style={styles.gastoFormRow}>
+                <TextInput
+                  style={[styles.gastoInput, styles.gastoInputMonto]}
+                  placeholder="Monto"
+                  value={nuevoGastoMonto}
+                  onChangeText={setNuevoGastoMonto}
+                  keyboardType="numeric"
+                  placeholderTextColor={colors.textSecondary}
+                />
+                <TouchableOpacity style={styles.guardarGastoBtn} onPress={handleAgregarGasto}>
+                  <Ionicons name="checkmark" size={22} color={colors.textOnPrimary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* Total de gastos */}
+          <View style={styles.gastosTotalRow}>
+            <Text style={styles.gastosTotalLabel}>Total gastos:</Text>
+            <Text style={styles.gastosTotalMonto}>${formatearMonto(totalGastosDelMes)}</Text>
+          </View>
+
+          {/* Lista de gastos */}
+          {gastosDelMes.length > 0 ? (
+            <View style={styles.gastosList}>
+              {gastosDelMes.map((gasto) => (
+                <View key={gasto.id} style={styles.gastoItem}>
+                  <View style={styles.gastoInfo}>
+                    <Text style={styles.gastoDescripcion}>{gasto.descripcion}</Text>
+                    <Text style={styles.gastoFecha}>
+                      {new Date(gasto.fechaCreacion).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                    </Text>
+                  </View>
+                  <Text style={styles.gastoMonto}>-${formatearMonto(gasto.monto)}</Text>
+                  <TouchableOpacity 
+                    style={styles.gastoDeleteBtn}
+                    onPress={() => handleEliminarGasto(gasto.id)}
+                  >
+                    <Ionicons name="trash-outline" size={18} color={colors.error} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.emptyText}>No hay gastos este mes</Text>
+          )}
+
+          {/* Balance */}
+          <View style={styles.balanceRow}>
+            <View style={styles.balanceItem}>
+              <Text style={styles.balanceLabel}>Ventas del mes</Text>
+              <Text style={[styles.balanceValue, { color: colors.success }]}>
+                +${formatearMonto(stats.totalVentas || 0)}
+              </Text>
+            </View>
+            <View style={styles.balanceItem}>
+              <Text style={styles.balanceLabel}>Gastos del mes</Text>
+              <Text style={[styles.balanceValue, { color: colors.error }]}>
+                -${formatearMonto(totalGastosDelMes)}
+              </Text>
+            </View>
+            <View style={[styles.balanceItem, styles.balanceTotal]}>
+              <Text style={styles.balanceLabel}>Balance</Text>
+              <Text style={[
+                styles.balanceValue, 
+                { color: (stats.totalVentas || 0) - totalGastosDelMes >= 0 ? colors.success : colors.error }
+              ]}>
+                ${formatearMonto((stats.totalVentas || 0) - totalGastosDelMes)}
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View style={styles.bottomSpacing} />
@@ -724,6 +878,132 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: colors.textPrimary,
+  },
+  // Estilos para sección de gastos
+  gastosTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  addGastoBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gastoForm: {
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+  },
+  gastoFormRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 10,
+  },
+  gastoInput: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: colors.textPrimary,
+  },
+  gastoInputMonto: {
+    flex: 1,
+  },
+  guardarGastoBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: colors.success,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gastosTotalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.error + '15',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginBottom: 12,
+  },
+  gastosTotalLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  gastosTotalMonto: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.error,
+  },
+  gastosList: {
+    gap: 8,
+    marginBottom: 16,
+  },
+  gastoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    borderRadius: 10,
+    padding: 12,
+    gap: 10,
+  },
+  gastoInfo: {
+    flex: 1,
+  },
+  gastoDescripcion: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.textPrimary,
+  },
+  gastoFecha: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  gastoMonto: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.error,
+  },
+  gastoDeleteBtn: {
+    padding: 6,
+  },
+  balanceRow: {
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    padding: 12,
+    gap: 10,
+  },
+  balanceItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  balanceTotal: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 12,
+    marginTop: 4,
+  },
+  balanceLabel: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  balanceValue: {
+    fontSize: 16,
+    fontWeight: '700',
   },
   bottomSpacing: {
     height: 30,
