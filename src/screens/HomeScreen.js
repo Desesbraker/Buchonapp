@@ -12,8 +12,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../theme/colors';
-import { obtenerPedidos, obtenerClientes, inicializarDatosEjemplo, eliminarPedido, actualizarPedido } from '../storage/storage';
-import { sampleClientes } from '../data/sampleData';
+import { obtenerPedidos, suscribirPedidos, eliminarPedido, actualizarPedido, getSyncStatus } from '../storage/storage';
 import ClienteCard from '../components/ClienteCard';
 import SearchBar from '../components/SearchBar';
 import FilterBar from '../components/FilterBar';
@@ -24,6 +23,7 @@ const HomeScreen = ({ navigation }) => {
   const [clientesFiltrados, setClientesFiltrados] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState(null);
   const [filtros, setFiltros] = useState({
     abono_pendiente: false,
     no_pagado: false,
@@ -40,19 +40,27 @@ const HomeScreen = ({ navigation }) => {
   });
 
   const cargarClientes = useCallback(async () => {
-    // Primero cargar pedidos nuevos
     const pedidos = await obtenerPedidos();
+    setClientes(pedidos);
+  }, []);
+
+  // Suscripción en tiempo real si Firebase está activo
+  useEffect(() => {
+    const status = getSyncStatus();
+    setSyncStatus(status);
     
-    // Luego cargar datos de ejemplo si no hay nada
-    if (pedidos.length === 0) {
-      await inicializarDatosEjemplo(sampleClientes);
-      const clientesEjemplo = await obtenerClientes();
-      setClientes(clientesEjemplo);
-    } else {
-      // Combinar pedidos nuevos con datos de ejemplo
-      const clientesEjemplo = await obtenerClientes();
-      setClientes([...pedidos, ...clientesEjemplo]);
-    }
+    // Si Firebase está activo, suscribirse a cambios en tiempo real
+    const unsubscribe = suscribirPedidos((pedidos) => {
+      setClientes(pedidos);
+    });
+    
+    // Cargar datos iniciales
+    cargarClientes();
+    
+    // Cleanup
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   // Recargar cuando la pantalla vuelva a tener foco
@@ -211,7 +219,14 @@ const HomeScreen = ({ navigation }) => {
             style={styles.headerLogo}
             resizeMode="contain"
           />
-          <Text style={styles.headerTitle}>Ramos Buchones</Text>
+          <View>
+            <Text style={styles.headerTitle}>Ramos Buchones</Text>
+            {syncStatus && (
+              <Text style={[styles.syncBadge, { color: syncStatus.firebase ? colors.success : colors.textSecondary }]}>
+                {syncStatus.firebase ? '🔄 Sincronizado' : '📱 Local'}
+              </Text>
+            )}
+          </View>
         </View>
       </View>
 
@@ -290,6 +305,11 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontStyle: 'italic',
     fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+  },
+  syncBadge: {
+    fontSize: 10,
+    fontWeight: '500',
+    marginTop: 2,
   },
   resultadosHeader: {
     paddingHorizontal: 16,

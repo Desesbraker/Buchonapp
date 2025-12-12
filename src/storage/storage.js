@@ -1,395 +1,56 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 /**
- * ALMACENAMIENTO PERSISTENTE - BuchonApp
+ * ALMACENAMIENTO - BuchonApp v2.0
  * 
- * AsyncStorage guarda los datos en el almacenamiento interno del dispositivo.
- * Los datos PERSISTEN entre actualizaciones de la app (updates).
- * Los datos solo se eliminan si el usuario desinstala la aplicación.
+ * Re-exporta todas las funciones desde el módulo con soporte Firebase.
+ * Para sincronización entre dispositivos, configura Firebase en:
+ * src/config/firebase.js
  */
 
-const CLIENTES_KEY = '@buchonapp_clientes';
-const PRODUCTOS_KEY = '@buchonapp_productos';
-const CATEGORIAS_KEY = '@buchonapp_categorias';
-const INVENTARIO_KEY = '@buchonapp_inventario';
-const PEDIDOS_KEY = '@buchonapp_pedidos';
-const CONTADOR_PEDIDOS_KEY = '@buchonapp_contador_pedidos';
-const ORDEN_ENTREGAS_KEY = '@buchonapp_orden_entregas';
-const GASTOS_KEY = '@buchonapp_gastos';
-
-// ============ PEDIDOS ============
-
-export const obtenerSiguienteNumeroPedido = async () => {
-  try {
-    const data = await AsyncStorage.getItem(CONTADOR_PEDIDOS_KEY);
-    const contador = data ? parseInt(data) : 0;
-    const nuevoContador = contador + 1;
-    await AsyncStorage.setItem(CONTADOR_PEDIDOS_KEY, nuevoContador.toString());
-    return `P${String(nuevoContador).padStart(3, '0')}`;
-  } catch (error) {
-    console.error('Error obteniendo número de pedido:', error);
-    return `P${Date.now()}`;
-  }
-};
-
-export const guardarPedido = async (pedido) => {
-  try {
-    const pedidos = await obtenerPedidos();
-    const nuevoPedido = {
-      ...pedido,
-      id: Date.now().toString(),
-      fechaCreacion: new Date().toISOString(),
-    };
-    pedidos.unshift(nuevoPedido); // Agregar al inicio
-    await AsyncStorage.setItem(PEDIDOS_KEY, JSON.stringify(pedidos));
-    return nuevoPedido;
-  } catch (error) {
-    console.error('Error guardando pedido:', error);
-    return null;
-  }
-};
-
-export const obtenerPedidos = async () => {
-  try {
-    const data = await AsyncStorage.getItem(PEDIDOS_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error('Error obteniendo pedidos:', error);
-    return [];
-  }
-};
-
-export const actualizarPedido = async (pedidoActualizado) => {
-  try {
-    const pedidos = await obtenerPedidos();
-    const index = pedidos.findIndex(p => p.id === pedidoActualizado.id);
-    if (index !== -1) {
-      pedidos[index] = { ...pedidoActualizado, fechaActualizacion: new Date().toISOString() };
-      await AsyncStorage.setItem(PEDIDOS_KEY, JSON.stringify(pedidos));
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error('Error actualizando pedido:', error);
-    return false;
-  }
-};
-
-export const eliminarPedido = async (pedidoId) => {
-  try {
-    const pedidos = await obtenerPedidos();
-    const pedidosFiltrados = pedidos.filter(p => p.id !== pedidoId);
-    await AsyncStorage.setItem(PEDIDOS_KEY, JSON.stringify(pedidosFiltrados));
-    return true;
-  } catch (error) {
-    console.error('Error eliminando pedido:', error);
-    return false;
-  }
-};
-
-// ============ CLIENTES ============
-
-export const guardarClientes = async (clientes) => {
-  try {
-    await AsyncStorage.setItem(CLIENTES_KEY, JSON.stringify(clientes));
-    return true;
-  } catch (error) {
-    console.error('Error guardando clientes:', error);
-    return false;
-  }
-};
-
-export const obtenerClientes = async () => {
-  try {
-    const data = await AsyncStorage.getItem(CLIENTES_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error('Error obteniendo clientes:', error);
-    return [];
-  }
-};
-
-export const agregarCliente = async (cliente) => {
-  try {
-    const clientes = await obtenerClientes();
-    const nuevoCliente = {
-      ...cliente,
-      id: Date.now().toString(),
-      numeroPedido: `P${String(clientes.length + 1).padStart(3, '0')}`,
-    };
-    clientes.push(nuevoCliente);
-    await guardarClientes(clientes);
-    return nuevoCliente;
-  } catch (error) {
-    console.error('Error agregando cliente:', error);
-    return null;
-  }
-};
-
-export const actualizarCliente = async (clienteActualizado) => {
-  try {
-    const clientes = await obtenerClientes();
-    const index = clientes.findIndex(c => c.id === clienteActualizado.id);
-    if (index !== -1) {
-      clientes[index] = clienteActualizado;
-      await guardarClientes(clientes);
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error('Error actualizando cliente:', error);
-    return false;
-  }
-};
-
-export const eliminarCliente = async (clienteId) => {
-  try {
-    const clientes = await obtenerClientes();
-    const clientesFiltrados = clientes.filter(c => c.id !== clienteId);
-    await guardarClientes(clientesFiltrados);
-    return true;
-  } catch (error) {
-    console.error('Error eliminando cliente:', error);
-    return false;
-  }
-};
-
-// ============ PRODUCTOS ============
-
-export const guardarProductos = async (productos) => {
-  try {
-    await AsyncStorage.setItem(PRODUCTOS_KEY, JSON.stringify(productos));
-    return true;
-  } catch (error) {
-    console.error('Error guardando productos:', error);
-    return false;
-  }
-};
-
-export const obtenerProductos = async () => {
-  try {
-    const data = await AsyncStorage.getItem(PRODUCTOS_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error('Error obteniendo productos:', error);
-    return [];
-  }
-};
-
-export const agregarProducto = async (producto) => {
-  try {
-    const productos = await obtenerProductos();
-    const nuevoProducto = {
-      ...producto,
-      id: Date.now().toString(),
-      fechaCreacion: new Date().toISOString(),
-    };
-    productos.unshift(nuevoProducto);
-    await guardarProductos(productos);
-    return nuevoProducto;
-  } catch (error) {
-    console.error('Error agregando producto:', error);
-    return null;
-  }
-};
-
-export const actualizarProducto = async (productoActualizado) => {
-  try {
-    const productos = await obtenerProductos();
-    const index = productos.findIndex(p => p.id === productoActualizado.id);
-    if (index !== -1) {
-      productos[index] = { ...productoActualizado, fechaActualizacion: new Date().toISOString() };
-      await guardarProductos(productos);
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error('Error actualizando producto:', error);
-    return false;
-  }
-};
-
-export const eliminarProducto = async (productoId) => {
-  try {
-    const productos = await obtenerProductos();
-    const productosFiltrados = productos.filter(p => p.id !== productoId);
-    await guardarProductos(productosFiltrados);
-    return true;
-  } catch (error) {
-    console.error('Error eliminando producto:', error);
-    return false;
-  }
-};
-
-// ============ CATEGORÍAS ============
-
-export const guardarCategorias = async (categorias) => {
-  try {
-    await AsyncStorage.setItem(CATEGORIAS_KEY, JSON.stringify(categorias));
-    return true;
-  } catch (error) {
-    console.error('Error guardando categorías:', error);
-    return false;
-  }
-};
-
-export const obtenerCategorias = async () => {
-  try {
-    const data = await AsyncStorage.getItem(CATEGORIAS_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error('Error obteniendo categorías:', error);
-    return [];
-  }
-};
-
-export const agregarCategoria = async (categoria) => {
-  try {
-    const categorias = await obtenerCategorias();
-    const nuevaCategoria = {
-      ...categoria,
-      id: Date.now().toString(),
-      fechaCreacion: new Date().toISOString(),
-    };
-    categorias.unshift(nuevaCategoria);
-    await guardarCategorias(categorias);
-    return nuevaCategoria;
-  } catch (error) {
-    console.error('Error agregando categoría:', error);
-    return null;
-  }
-};
-
-export const eliminarCategoria = async (categoriaId) => {
-  try {
-    const categorias = await obtenerCategorias();
-    const categoriasFiltradas = categorias.filter(c => c.id !== categoriaId);
-    await guardarCategorias(categoriasFiltradas);
-    return true;
-  } catch (error) {
-    console.error('Error eliminando categoría:', error);
-    return false;
-  }
-};
-
-// ============ INVENTARIO ============
-
-export const guardarInventario = async (inventario) => {
-  try {
-    await AsyncStorage.setItem(INVENTARIO_KEY, JSON.stringify(inventario));
-    return true;
-  } catch (error) {
-    console.error('Error guardando inventario:', error);
-    return false;
-  }
-};
-
-export const obtenerInventario = async () => {
-  try {
-    const data = await AsyncStorage.getItem(INVENTARIO_KEY);
-    return data ? JSON.parse(data) : {
-      rosasDisponibles: 0,
-      cajasCompradas: 0,
-      rosasPorCaja: 25,
-      rosasUsadas: 0,
-    };
-  } catch (error) {
-    console.error('Error obteniendo inventario:', error);
-    return {
-      rosasDisponibles: 0,
-      cajasCompradas: 0,
-      rosasPorCaja: 25,
-      rosasUsadas: 0,
-    };
-  }
-};
-
-// ============ INICIALIZAR CON DATOS DE EJEMPLO ============
-
-export const inicializarDatosEjemplo = async (datosEjemplo) => {
-  try {
-    const clientesExistentes = await obtenerClientes();
-    if (clientesExistentes.length === 0) {
-      await guardarClientes(datosEjemplo);
-    }
-    return true;
-  } catch (error) {
-    console.error('Error inicializando datos:', error);
-    return false;
-  }
-};
-
-// ============ ORDEN DE ENTREGAS ============
-
-export const guardarOrdenEntregas = async (fecha, ordenIds) => {
-  try {
-    const ordenes = await obtenerTodasLasOrdenesEntregas();
-    ordenes[fecha] = ordenIds;
-    await AsyncStorage.setItem(ORDEN_ENTREGAS_KEY, JSON.stringify(ordenes));
-    return true;
-  } catch (error) {
-    console.error('Error guardando orden de entregas:', error);
-    return false;
-  }
-};
-
-export const obtenerOrdenEntregas = async (fecha) => {
-  try {
-    const ordenes = await obtenerTodasLasOrdenesEntregas();
-    return ordenes[fecha] || [];
-  } catch (error) {
-    console.error('Error obteniendo orden de entregas:', error);
-    return [];
-  }
-};
-
-export const obtenerTodasLasOrdenesEntregas = async () => {
-  try {
-    const data = await AsyncStorage.getItem(ORDEN_ENTREGAS_KEY);
-    return data ? JSON.parse(data) : {};
-  } catch (error) {
-    console.error('Error obteniendo todas las órdenes:', error);
-    return {};
-  }
-};
-
-// ============ GASTOS ============
-
-export const guardarGasto = async (gasto) => {
-  try {
-    const gastos = await obtenerGastos();
-    const nuevoGasto = {
-      ...gasto,
-      id: Date.now().toString(),
-      fechaCreacion: new Date().toISOString(),
-    };
-    gastos.unshift(nuevoGasto);
-    await AsyncStorage.setItem(GASTOS_KEY, JSON.stringify(gastos));
-    return nuevoGasto;
-  } catch (error) {
-    console.error('Error guardando gasto:', error);
-    return null;
-  }
-};
-
-export const obtenerGastos = async () => {
-  try {
-    const data = await AsyncStorage.getItem(GASTOS_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch (error) {
-    console.error('Error obteniendo gastos:', error);
-    return [];
-  }
-};
-
-export const eliminarGasto = async (gastoId) => {
-  try {
-    const gastos = await obtenerGastos();
-    const gastosFiltrados = gastos.filter(g => g.id !== gastoId);
-    await AsyncStorage.setItem(GASTOS_KEY, JSON.stringify(gastosFiltrados));
-    return true;
-  } catch (error) {
-    console.error('Error eliminando gasto:', error);
-    return false;
-  }
-};
+export {
+  // Pedidos
+  obtenerSiguienteNumeroPedido,
+  guardarPedido,
+  obtenerPedidos,
+  actualizarPedido,
+  eliminarPedido,
+  suscribirPedidos,
+  
+  // Productos
+  guardarProductos,
+  obtenerProductos,
+  agregarProducto,
+  actualizarProducto,
+  eliminarProducto,
+  
+  // Categorías
+  guardarCategorias,
+  obtenerCategorias,
+  agregarCategoria,
+  eliminarCategoria,
+  
+  // Gastos
+  guardarGasto,
+  obtenerGastos,
+  eliminarGasto,
+  suscribirGastos,
+  
+  // Clientes (legacy)
+  guardarClientes,
+  obtenerClientes,
+  
+  // Orden de entregas
+  guardarOrdenEntregas,
+  obtenerOrdenEntregas,
+  obtenerTodasLasOrdenesEntregas,
+  
+  // Inventario
+  guardarInventario,
+  obtenerInventario,
+  
+  // Inicialización
+  inicializarDatosEjemplo,
+  
+  // Utilidades
+  getSyncStatus,
+  limpiarDatosLocales,
+} from './storageFirebase';
