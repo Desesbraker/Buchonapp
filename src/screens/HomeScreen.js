@@ -122,8 +122,8 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleEditarCliente = (cliente) => {
-    // TODO: Navegar a pantalla de edición con datos del cliente
-    Alert.alert('Editar', `Funcionalidad de editar pedido de ${cliente.nombre} próximamente disponible`);
+    // Navegar a pantalla de edición con datos del cliente
+    navigation.navigate('NuevoPedido', { pedidoEditar: cliente });
   };
 
   const handleEliminarCliente = async (cliente) => {

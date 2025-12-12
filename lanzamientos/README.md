@@ -10,7 +10,19 @@ Aquí encontrarás los APK compilados de la aplicación.
 
 ## Versiones
 
-### v1.5.0 - Mejoras UX y Rutas 🗺️ (ÚLTIMA)
+### v1.6.0 - Edición de Pedidos ✏️ (ÚLTIMA)
+**Fecha:** 12 de Diciembre, 2025
+
+**Nuevas características y mejoras:**
+- ✏️ **Editar pedidos funcional** - Al presionar "Editar" en las tarjetas de clientes ahora abre el formulario con todos los datos precargados
+- 📝 **Edición desde Planificar** - También puedes editar pedidos desde la pantalla de planificación
+- 📅 **Fuente más pequeña en fechas** - Texto más legible en los selectores de fecha del formulario
+
+[📥 Descargar buchonapp-v1.6.0.apk](./buchonapp-v1.6.0.apk)
+
+---
+
+### v1.5.0 - Mejoras UX y Rutas 🗺️
 **Fecha:** 12 de Diciembre, 2025
 
 **Nuevas características y mejoras:**

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
-import { guardarPedido, obtenerSiguienteNumeroPedido, obtenerProductos, guardarProductos } from '../storage/storage';
+import { guardarPedido, obtenerSiguienteNumeroPedido, obtenerProductos, guardarProductos, actualizarPedido } from '../storage/storage';
 import { sampleProductos } from '../data/sampleData';
 
 // Componentes
@@ -24,7 +24,11 @@ import ProductoSelector from '../components/ProductoSelector';
 import ImageSelector from '../components/ImageSelector';
 import ToggleOption from '../components/ToggleOption';
 
-const NuevoPedidoScreen = ({ navigation }) => {
+const NuevoPedidoScreen = ({ navigation, route }) => {
+  // Verificar si estamos editando un pedido existente
+  const pedidoEditar = route.params?.pedidoEditar || null;
+  const esEdicion = pedidoEditar !== null;
+
   // Estado del formulario
   const [numeroPedido, setNumeroPedido] = useState('');
   const [nombre, setNombre] = useState('');
@@ -54,9 +58,6 @@ const NuevoPedidoScreen = ({ navigation }) => {
   // Cargar número de pedido y productos al iniciar
   useEffect(() => {
     const inicializar = async () => {
-      const numero = await obtenerSiguienteNumeroPedido();
-      setNumeroPedido(numero);
-      
       // Cargar productos o inicializar con datos de ejemplo
       let productos = await obtenerProductos();
       if (productos.length === 0) {
@@ -64,9 +65,34 @@ const NuevoPedidoScreen = ({ navigation }) => {
         productos = sampleProductos;
       }
       setProductosDisponibles(productos);
+
+      if (esEdicion && pedidoEditar) {
+        // Modo edición: cargar datos del pedido existente
+        setNumeroPedido(pedidoEditar.numeroPedido || '');
+        setNombre(pedidoEditar.nombre || '');
+        setAlias(pedidoEditar.alias || '');
+        setFechaReserva(pedidoEditar.fechaReserva || new Date().toISOString().split('T')[0]);
+        setFechaEntrega(pedidoEditar.fechaEntrega || '');
+        setPlataforma(pedidoEditar.plataforma || pedidoEditar.redSocial || '');
+        setTelefono(pedidoEditar.telefono || '+56 9 ');
+        setTipoEntrega(pedidoEditar.tipoEntrega || 'envio');
+        setDireccion(pedidoEditar.direccion || '');
+        setDetalles(pedidoEditar.detalles || '');
+        setAbono(pedidoEditar.montoAbonado?.toString() || '');
+        setMedioPago(pedidoEditar.medioPago || '');
+        setComprobantes(pedidoEditar.comprobantes || []);
+        setImagenesAdicionales(pedidoEditar.imagenesAdicionales || []);
+        setProductosSeleccionados(pedidoEditar.productos || []);
+        setFrasePersonalizada(pedidoEditar.frasePersonalizada || '');
+        setTotalManual(pedidoEditar.montoTotal?.toString() || '');
+      } else {
+        // Modo nuevo: obtener siguiente número de pedido
+        const numero = await obtenerSiguienteNumeroPedido();
+        setNumeroPedido(numero);
+      }
     };
     inicializar();
-  }, []);
+  }, [esEdicion, pedidoEditar]);
 
   const abrirMaps = () => {
     if (direccion) {
@@ -131,48 +157,76 @@ const NuevoPedidoScreen = ({ navigation }) => {
         frasePersonalizada: frasePersonalizada.trim(),
         estado,
         redSocial: plataforma, // Para compatibilidad con el listado
-        horaEntrega: '12:00', // Por defecto
+        horaEntrega: pedidoEditar?.horaEntrega || '12:00', // Mantener hora si editando
       };
 
-      const resultado = await guardarPedido(pedido);
-
-      if (resultado) {
-        Alert.alert(
-          '¡Pedido Guardado!',
-          `Pedido ${numeroPedido} guardado exitosamente`,
-          [
-            {
-              text: 'Crear otro',
-              onPress: async () => {
-                // Resetear formulario
-                const nuevoNumero = await obtenerSiguienteNumeroPedido();
-                setNumeroPedido(nuevoNumero);
-                setNombre('');
-                setAlias('');
-                setFechaReserva(new Date().toISOString().split('T')[0]);
-                setFechaEntrega('');
-                setPlataforma('');
-                setTelefono('');
-                setTipoEntrega('envio');
-                setDireccion('');
-                setDetalles('');
-                setAbono('');
-                setMedioPago('');
-                setComprobantes([]);
-                setImagenesAdicionales([]);
-                setProductosSeleccionados([]);
-                setFrasePersonalizada('');
-                setTotalManual('');
+      let resultado;
+      
+      if (esEdicion && pedidoEditar) {
+        // Modo edición: actualizar pedido existente
+        const pedidoActualizado = {
+          ...pedidoEditar,
+          ...pedido,
+          id: pedidoEditar.id, // Mantener el ID original
+        };
+        resultado = await actualizarPedido(pedidoActualizado);
+        
+        if (resultado) {
+          Alert.alert(
+            '¡Pedido Actualizado!',
+            `Pedido ${numeroPedido} actualizado exitosamente`,
+            [
+              {
+                text: 'Aceptar',
+                onPress: () => navigation.goBack(),
               },
-            },
-            {
-              text: 'Ir al inicio',
-              onPress: () => navigation.goBack(),
-            },
-          ]
-        );
+            ]
+          );
+        } else {
+          Alert.alert('Error', 'No se pudo actualizar el pedido');
+        }
       } else {
-        Alert.alert('Error', 'No se pudo guardar el pedido');
+        // Modo nuevo: guardar nuevo pedido
+        resultado = await guardarPedido(pedido);
+
+        if (resultado) {
+          Alert.alert(
+            '¡Pedido Guardado!',
+            `Pedido ${numeroPedido} guardado exitosamente`,
+            [
+              {
+                text: 'Crear otro',
+                onPress: async () => {
+                  // Resetear formulario
+                  const nuevoNumero = await obtenerSiguienteNumeroPedido();
+                  setNumeroPedido(nuevoNumero);
+                  setNombre('');
+                  setAlias('');
+                  setFechaReserva(new Date().toISOString().split('T')[0]);
+                  setFechaEntrega('');
+                  setPlataforma('');
+                  setTelefono('');
+                  setTipoEntrega('envio');
+                  setDireccion('');
+                  setDetalles('');
+                  setAbono('');
+                  setMedioPago('');
+                  setComprobantes([]);
+                  setImagenesAdicionales([]);
+                  setProductosSeleccionados([]);
+                  setFrasePersonalizada('');
+                  setTotalManual('');
+                },
+              },
+              {
+                text: 'Ir al inicio',
+                onPress: () => navigation.goBack(),
+              },
+            ]
+          );
+        } else {
+          Alert.alert('Error', 'No se pudo guardar el pedido');
+        }
       }
     } catch (error) {
       Alert.alert('Error', 'Ocurrió un error al guardar');
@@ -197,7 +251,7 @@ const NuevoPedidoScreen = ({ navigation }) => {
             <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>Nuevo Pedido</Text>
+            <Text style={styles.headerTitle}>{esEdicion ? 'Editar Pedido' : 'Nuevo Pedido'}</Text>
             <View style={styles.numeroPedidoBadge}>
               <Text style={styles.numeroPedidoText}>{numeroPedido}</Text>
             </View>
@@ -399,7 +453,7 @@ const NuevoPedidoScreen = ({ navigation }) => {
           >
             <Ionicons name="save-outline" size={22} color={colors.textOnPrimary} />
             <Text style={styles.guardarBtnText}>
-              {guardando ? 'Guardando...' : 'Guardar Pedido'}
+              {guardando ? 'Guardando...' : (esEdicion ? 'Actualizar Pedido' : 'Guardar Pedido')}
             </Text>
           </TouchableOpacity>
 

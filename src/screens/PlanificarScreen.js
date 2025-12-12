@@ -158,7 +158,7 @@ const PlanificarScreen = ({ navigation }) => {
   };
 
   const handleEditarPedido = (pedido) => {
-    Alert.alert('Editar', `Funcionalidad de editar pedido de ${pedido.nombre} próximamente disponible`);
+    navigation.navigate('NuevoPedido', { pedidoEditar: pedido });
   };
 
   const handleEliminarPedido = async (pedido) => {
