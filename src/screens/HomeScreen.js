@@ -223,6 +223,7 @@ const HomeScreen = ({ navigation }) => {
         onPlanificar={() => navigation.navigate('Planificar')}
         onProductos={() => navigation.navigate('Productos')}
         onEstadisticas={() => navigation.navigate('Estadisticas')}
+        onHome={() => {}}
       />
     </View>
   );

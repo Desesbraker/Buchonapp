@@ -10,7 +10,23 @@ Aquí encontrarás los APK compilados de la aplicación.
 
 ## Versiones
 
-### v1.4.0 - Correcciones UI/UX 🛠️ (ÚLTIMA)
+### v1.5.0 - Mejoras UX y Rutas 🗺️ (ÚLTIMA)
+**Fecha:** 12 de Diciembre, 2025
+
+**Nuevas características y mejoras:**
+- 🏠 **Logo central navega a Home** - Al presionar el logo en la barra de navegación te lleva a la pantalla principal
+- 🎨 **Fondo del logo aún más claro** (#E8E8E8) para mejor visibilidad
+- ✏️ **Editar productos** - Al presionar un producto se abre el formulario con datos precargados para editar
+- 📱 **Plataforma "Otros"** - Reemplazado TikTok por "Otros" con icono de puntos suspensivos
+- 🗺️ **Crear Ruta en Planificar** - Nuevo botón para abrir Google Maps con las direcciones de entrega del día
+  - Genera ruta optimizada con múltiples destinos
+  - Muestra confirmación con lista de direcciones antes de abrir Maps
+
+[📥 Descargar buchonapp-v1.5.0.apk](./buchonapp-v1.5.0.apk)
+
+---
+
+### v1.4.0 - Correcciones UI/UX 🛠️
 **Fecha:** 12 de Diciembre, 2025
 
 **Correcciones y mejoras:**

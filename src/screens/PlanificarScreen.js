@@ -8,6 +8,7 @@ import {
   Alert,
   StatusBar,
   Platform,
+  Linking,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -77,6 +78,50 @@ const PlanificarScreen = ({ navigation }) => {
 
     filtrarYOrdenar();
   }, [todosPedidos, fechaSeleccionada]);
+
+  const crearRutaGoogleMaps = () => {
+    // Filtrar pedidos que tienen dirección y son tipo "envio"
+    const pedidosConDireccion = pedidosFiltrados.filter(
+      pedido => pedido.tipoEntrega === 'envio' && pedido.direccion?.trim()
+    );
+
+    if (pedidosConDireccion.length === 0) {
+      Alert.alert(
+        'Sin direcciones',
+        'No hay pedidos con direcciones de envío para crear una ruta.\n\nAsegúrate de que los pedidos tengan la opción "Envío" seleccionada y una dirección ingresada.'
+      );
+      return;
+    }
+
+    // Construir URL de Google Maps con múltiples destinos
+    // Formato: https://www.google.com/maps/dir/origen/destino1/destino2/...
+    const direcciones = pedidosConDireccion.map(p => encodeURIComponent(p.direccion));
+    
+    // La primera dirección es el destino principal, las siguientes son waypoints
+    let googleMapsUrl;
+    
+    if (direcciones.length === 1) {
+      // Solo un destino
+      googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${direcciones[0]}`;
+    } else {
+      // Múltiples destinos: usar el primer destino como origin y los demás como waypoints
+      const destino = direcciones[direcciones.length - 1];
+      const waypoints = direcciones.slice(0, -1).join('%7C');
+      googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destino}&waypoints=${waypoints}`;
+    }
+
+    Alert.alert(
+      'Abrir ruta en Google Maps',
+      `Se abrirá una ruta con ${pedidosConDireccion.length} destino${pedidosConDireccion.length > 1 ? 's' : ''}:\n\n${pedidosConDireccion.map((p, i) => `${i + 1}. ${p.nombre}: ${p.direccion}`).join('\n')}`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Abrir Maps',
+          onPress: () => Linking.openURL(googleMapsUrl)
+        }
+      ]
+    );
+  };
 
   const cambiarFecha = (dias) => {
     const fecha = new Date(fechaSeleccionada + 'T12:00:00');
@@ -209,6 +254,16 @@ const PlanificarScreen = ({ navigation }) => {
         <Text style={styles.contadorText}>
           {pedidosFiltrados.length} entrega{pedidosFiltrados.length !== 1 ? 's' : ''} programada{pedidosFiltrados.length !== 1 ? 's' : ''}
         </Text>
+        {pedidosFiltrados.length > 0 && (
+          <TouchableOpacity 
+            style={styles.botonRuta} 
+            onPress={crearRutaGoogleMaps}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="navigate" size={18} color="#FFF" />
+            <Text style={styles.botonRutaText}>Crear Ruta</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {pedidoSeleccionado && (
@@ -263,6 +318,7 @@ const PlanificarScreen = ({ navigation }) => {
         onPlanificar={() => {}}
         onProductos={() => navigation.navigate('Productos')}
         onEstadisticas={() => navigation.navigate('Estadisticas')}
+        onHome={() => navigation.navigate('Home')}
       />
     </View>
   );
@@ -319,6 +375,9 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   contadorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 12,
   },
@@ -326,6 +385,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     fontWeight: '500',
+  },
+  botonRuta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.success,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  botonRutaText: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: '600',
   },
   instrucciones: {
     flexDirection: 'row',

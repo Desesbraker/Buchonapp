@@ -20,6 +20,7 @@ import {
   obtenerProductos,
   agregarProducto,
   eliminarProducto,
+  actualizarProducto,
   obtenerCategorias,
   agregarCategoria,
   eliminarCategoria,
@@ -32,6 +33,7 @@ const ProductosScreen = ({ navigation }) => {
   const [modalProducto, setModalProducto] = useState(false);
   const [modalCategoria, setModalCategoria] = useState(false);
   const [vistaActiva, setVistaActiva] = useState('productos');
+  const [productoEditando, setProductoEditando] = useState(null); // null = nuevo, objeto = editando
 
   // Estado para nuevo producto
   const [nuevoProducto, setNuevoProducto] = useState({
@@ -76,7 +78,49 @@ const ProductosScreen = ({ navigation }) => {
     seleccionarImagen('galeria', esProducto);
   };
 
-  const guardarNuevoProducto = async () => {
+  const abrirModalEditarProducto = (producto) => {
+    setProductoEditando(producto);
+    setNuevoProducto({
+      nombre: producto.nombre || '',
+      color: producto.color || '',
+      precio: producto.precio?.toString() || '',
+      cantidad: producto.cantidad?.toString() || '',
+      descripcion: producto.descripcion || '',
+      imagen: producto.imagen || null,
+      categoriaId: producto.categoriaId || null,
+    });
+    setModalProducto(true);
+  };
+
+  const abrirModalNuevoProducto = () => {
+    setProductoEditando(null);
+    setNuevoProducto({
+      nombre: '',
+      color: '',
+      precio: '',
+      cantidad: '',
+      descripcion: '',
+      imagen: null,
+      categoriaId: null,
+    });
+    setModalProducto(true);
+  };
+
+  const cerrarModalProducto = () => {
+    setModalProducto(false);
+    setProductoEditando(null);
+    setNuevoProducto({
+      nombre: '',
+      color: '',
+      precio: '',
+      cantidad: '',
+      descripcion: '',
+      imagen: null,
+      categoriaId: null,
+    });
+  };
+
+  const guardarProducto = async () => {
     if (!nuevoProducto.nombre.trim()) {
       Alert.alert('Error', 'El nombre del producto es obligatorio');
       return;
@@ -90,24 +134,32 @@ const ProductosScreen = ({ navigation }) => {
       return;
     }
 
-    const resultado = await agregarProducto({
+    const datosProducto = {
       ...nuevoProducto,
       precio: parseFloat(nuevoProducto.precio) || 0,
       cantidad: parseInt(nuevoProducto.cantidad) || 0,
-    });
+    };
+
+    let resultado;
+    if (productoEditando) {
+      // Modo edición
+      resultado = await actualizarProducto({
+        ...productoEditando,
+        ...datosProducto,
+      });
+      if (resultado) {
+        Alert.alert('Éxito', 'Producto actualizado correctamente');
+      }
+    } else {
+      // Modo nuevo
+      resultado = await agregarProducto(datosProducto);
+      if (resultado) {
+        Alert.alert('Éxito', 'Producto agregado correctamente');
+      }
+    }
 
     if (resultado) {
-      Alert.alert('Éxito', 'Producto agregado correctamente');
-      setModalProducto(false);
-      setNuevoProducto({
-        nombre: '',
-        color: '',
-        precio: '',
-        cantidad: '',
-        descripcion: '',
-        imagen: null,
-        categoriaId: null,
-      });
+      cerrarModalProducto();
       cargarDatos();
     }
   };
@@ -130,6 +182,25 @@ const ProductosScreen = ({ navigation }) => {
       });
       cargarDatos();
     }
+  };
+
+  const mostrarOpcionesProducto = (producto) => {
+    Alert.alert(
+      producto.nombre,
+      '¿Qué deseas hacer con este producto?',
+      [
+        { 
+          text: 'Editar', 
+          onPress: () => abrirModalEditarProducto(producto)
+        },
+        { 
+          text: 'Eliminar', 
+          style: 'destructive',
+          onPress: () => confirmarEliminarProducto(producto)
+        },
+        { text: 'Cancelar', style: 'cancel' },
+      ]
+    );
   };
 
   const confirmarEliminarProducto = (producto) => {
@@ -175,7 +246,8 @@ const ProductosScreen = ({ navigation }) => {
   const renderProducto = ({ item }) => (
     <TouchableOpacity 
       style={styles.productoCard}
-      onLongPress={() => confirmarEliminarProducto(item)}
+      onPress={() => abrirModalEditarProducto(item)}
+      onLongPress={() => mostrarOpcionesProducto(item)}
     >
       {item.imagen ? (
         <Image source={{ uri: item.imagen }} style={styles.productoImagen} />
@@ -242,7 +314,7 @@ const ProductosScreen = ({ navigation }) => {
       <View style={styles.botonesContainer}>
         <TouchableOpacity 
           style={styles.botonPrincipal}
-          onPress={() => setModalProducto(true)}
+          onPress={abrirModalNuevoProducto}
         >
           <Ionicons name="add-circle" size={28} color={colors.primary} />
           <Text style={styles.botonTexto}>Añadir Producto</Text>
@@ -312,18 +384,20 @@ const ProductosScreen = ({ navigation }) => {
         />
       )}
 
-      {/* Modal Añadir Producto */}
+      {/* Modal Añadir/Editar Producto */}
       <Modal
         visible={modalProducto}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setModalProducto(false)}
+        onRequestClose={cerrarModalProducto}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitulo}>Añadir Producto</Text>
-              <TouchableOpacity onPress={() => setModalProducto(false)}>
+              <Text style={styles.modalTitulo}>
+                {productoEditando ? 'Editar Producto' : 'Añadir Producto'}
+              </Text>
+              <TouchableOpacity onPress={cerrarModalProducto}>
                 <Ionicons name="close" size={28} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
@@ -454,9 +528,11 @@ const ProductosScreen = ({ navigation }) => {
               )}
 
               {/* Botón Guardar */}
-              <TouchableOpacity style={styles.botonGuardar} onPress={guardarNuevoProducto}>
+              <TouchableOpacity style={styles.botonGuardar} onPress={guardarProducto}>
                 <Ionicons name="checkmark-circle" size={24} color="#FFF" />
-                <Text style={styles.botonGuardarTexto}>Guardar Producto</Text>
+                <Text style={styles.botonGuardarTexto}>
+                  {productoEditando ? 'Actualizar Producto' : 'Guardar Producto'}
+                </Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -532,6 +608,7 @@ const ProductosScreen = ({ navigation }) => {
         onPlanificar={() => navigation.navigate('Planificar')}
         onProductos={() => {}}
         onEstadisticas={() => navigation.navigate('Estadisticas')}
+        onHome={() => navigation.navigate('Home')}
       />
     </View>
   );

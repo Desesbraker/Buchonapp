@@ -7,8 +7,8 @@ const plataformas = [
   { id: 'whatsapp', nombre: 'WhatsApp', icon: 'logo-whatsapp', color: '#25D366' },
   { id: 'instagram', nombre: 'Instagram', icon: 'logo-instagram', color: '#E4405F' },
   { id: 'facebook', nombre: 'Facebook', icon: 'logo-facebook', color: '#1877F2' },
-  { id: 'tiktok', nombre: 'TikTok', icon: 'musical-notes', color: '#000000' },
   { id: 'publicidad', nombre: 'Publicidad', icon: 'megaphone-outline', color: '#9C27B0' },
+  { id: 'otros', nombre: 'Otros', icon: 'ellipsis-horizontal', color: '#757575' },
 ];
 
 const PlataformaSelector = ({ selected, onSelect }) => {

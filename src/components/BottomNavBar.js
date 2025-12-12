@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
 
-const BottomNavBar = ({ onNuevoPedido, onPlanificar, onProductos, onEstadisticas }) => {
+const BottomNavBar = ({ onNuevoPedido, onPlanificar, onProductos, onEstadisticas, onHome }) => {
   return (
     <View style={styles.container}>
       <View style={styles.navBar}>
@@ -23,8 +23,8 @@ const BottomNavBar = ({ onNuevoPedido, onPlanificar, onProductos, onEstadisticas
           <Text style={styles.navLabel}>Planificar</Text>
         </TouchableOpacity>
 
-        {/* Logo Central */}
-        <View style={styles.logoContainer}>
+        {/* Logo Central - Navega a Home */}
+        <TouchableOpacity style={styles.logoContainer} onPress={onHome} activeOpacity={0.8}>
           <View style={styles.logoCircle}>
             <Image
               source={require('../../assets/logosinfondo.png')}
@@ -32,7 +32,7 @@ const BottomNavBar = ({ onNuevoPedido, onPlanificar, onProductos, onEstadisticas
               resizeMode="contain"
             />
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Botón Productos */}
         <TouchableOpacity style={styles.navItem} onPress={onProductos} activeOpacity={0.7}>
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#9E9E9E',
+    backgroundColor: '#E8E8E8',
     justifyContent: 'center',
     alignItems: 'center',
     ...shadows.medium,
