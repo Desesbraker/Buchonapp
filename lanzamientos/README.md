@@ -10,7 +10,27 @@ Aquí encontrarás los APK compilados de la aplicación.
 
 ## Versiones
 
-### v1.1.0 - Pantalla Nuevo Pedido ✅ (ÚLTIMA)
+### v1.3.0 - Estadísticas Completas 📊 (ÚLTIMA)
+**Fecha:** 12 de Diciembre, 2025
+
+**Nuevas características:**
+- 📊 **Pantalla de Estadísticas completa:**
+  - 💰 Resumen de ventas totales por período
+  - 📅 Filtros: Semana, Mes, Trimestre, Año
+  - ✅ Estado de elaboración (elaborados vs pendientes)
+  - 💳 Estado de pagos (pagados, con abono, sin pago)
+  - 📈 Gráfico de barras de ventas últimos 6 meses
+  - 📆 Entregas por día de la semana
+  - 📱 Ventas por plataforma (WhatsApp, Instagram, etc.)
+  - 📦 Resumen de inventario (productos, unidades, valor)
+  - 🎨 Productos por color
+  - 📁 Contador de categorías
+
+[📥 Descargar buchonapp-v1.3.0.apk](./buchonapp-v1.3.0.apk)
+
+---
+
+### v1.1.0 - Pantalla Nuevo Pedido ✅
 **Fecha:** 11 de Diciembre, 2025
 
 **Nuevas características:**

@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
 import { colors, shadows } from '../theme/colors';
 import {
   obtenerProductos,
@@ -65,54 +64,15 @@ const ProductosScreen = ({ navigation }) => {
   );
 
   const seleccionarImagen = async (tipo, esProducto = true) => {
-    let resultado;
-    
-    if (tipo === 'camara') {
-      const permiso = await ImagePicker.requestCameraPermissionsAsync();
-      if (!permiso.granted) {
-        Alert.alert('Permiso denegado', 'Se necesita acceso a la cámara');
-        return;
-      }
-      resultado = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.7,
-      });
-    } else {
-      const permiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permiso.granted) {
-        Alert.alert('Permiso denegado', 'Se necesita acceso a la galería');
-        return;
-      }
-      resultado = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.7,
-      });
-    }
-
-    if (!resultado.canceled && resultado.assets[0]) {
-      const uri = resultado.assets[0].uri;
-      if (esProducto) {
-        setNuevoProducto(prev => ({ ...prev, imagen: uri }));
-      } else {
-        setNuevaCategoria(prev => ({ ...prev, imagen: uri }));
-      }
-    }
+    // Funcionalidad de imagen deshabilitada por ahora
+    Alert.alert(
+      'Próximamente',
+      'La selección de imágenes estará disponible en una próxima actualización'
+    );
   };
 
   const mostrarOpcionesImagen = (esProducto = true) => {
-    Alert.alert(
-      'Seleccionar imagen',
-      '¿De dónde quieres obtener la imagen?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Cámara', onPress: () => seleccionarImagen('camara', esProducto) },
-        { text: 'Galería', onPress: () => seleccionarImagen('galeria', esProducto) },
-      ]
-    );
+    seleccionarImagen('galeria', esProducto);
   };
 
   const guardarNuevoProducto = async () => {

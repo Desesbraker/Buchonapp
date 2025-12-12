@@ -25,7 +25,7 @@ const PlanificarScreen = ({ navigation }) => {
     const date = new Date(fecha + 'T12:00:00');
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    return \`\${dias[date.getDay()]} \${date.getDate()} de \${meses[date.getMonth()]}\`;
+    return `${dias[date.getDay()]} ${date.getDate()} de ${meses[date.getMonth()]}`;
   };
 
   const cargarPedidos = useCallback(async () => {
