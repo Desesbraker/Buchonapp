@@ -56,24 +56,18 @@ const BottomNavBar = ({ onNuevoPedido, onPlanificar, onProductos, onEstadisticas
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingBottom: 10,
-    paddingHorizontal: 10,
+    backgroundColor: colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingBottom: 8,
   },
   navBar: {
     flexDirection: 'row',
     backgroundColor: colors.surface,
-    borderRadius: 24,
     paddingVertical: 10,
     paddingHorizontal: 8,
     alignItems: 'flex-end',
     justifyContent: 'space-around',
-    ...shadows.medium,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   navItem: {
     alignItems: 'center',
@@ -101,7 +95,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: colors.surface,
+    backgroundColor: '#9E9E9E',
     justifyContent: 'center',
     alignItems: 'center',
     ...shadows.medium,

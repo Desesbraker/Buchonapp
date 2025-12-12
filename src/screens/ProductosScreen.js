@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   FlatList,
@@ -12,6 +11,7 @@ import {
   Image,
   Alert,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +24,7 @@ import {
   agregarCategoria,
   eliminarCategoria,
 } from '../storage/storage';
+import BottomNavBar from '../components/BottomNavBar';
 
 const ProductosScreen = ({ navigation }) => {
   const [productos, setProductos] = useState([]);
@@ -82,6 +83,10 @@ const ProductosScreen = ({ navigation }) => {
     }
     if (!nuevoProducto.precio.trim()) {
       Alert.alert('Error', 'El precio es obligatorio');
+      return;
+    }
+    if (!nuevoProducto.categoriaId) {
+      Alert.alert('Error', 'Debes seleccionar una categoría para el producto');
       return;
     }
 
@@ -221,7 +226,7 @@ const ProductosScreen = ({ navigation }) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       
       {/* Header */}
@@ -410,6 +415,44 @@ const ProductosScreen = ({ navigation }) => {
                 numberOfLines={3}
               />
 
+              {/* Categoría */}
+              <Text style={styles.inputLabel}>Categoría *</Text>
+              {categorias.length > 0 ? (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriasScroll}>
+                  {categorias.map((cat) => (
+                    <TouchableOpacity
+                      key={cat.id}
+                      style={[
+                        styles.categoriaOption,
+                        nuevoProducto.categoriaId === cat.id && styles.categoriaOptionSelected
+                      ]}
+                      onPress={() => setNuevoProducto(prev => ({ ...prev, categoriaId: cat.id }))}
+                    >
+                      <Text style={[
+                        styles.categoriaOptionText,
+                        nuevoProducto.categoriaId === cat.id && styles.categoriaOptionTextSelected
+                      ]}>
+                        {cat.nombre}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              ) : (
+                <View style={styles.sinCategoriasContainer}>
+                  <Text style={styles.sinCategoriasText}>No hay categorías. Crea una primero.</Text>
+                  <TouchableOpacity 
+                    style={styles.crearCategoriaBtn}
+                    onPress={() => {
+                      setModalProducto(false);
+                      setModalCategoria(true);
+                    }}
+                  >
+                    <Ionicons name="add-circle" size={20} color={colors.info} />
+                    <Text style={styles.crearCategoriaBtnText}>Crear Categoría</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
               {/* Botón Guardar */}
               <TouchableOpacity style={styles.botonGuardar} onPress={guardarNuevoProducto}>
                 <Ionicons name="checkmark-circle" size={24} color="#FFF" />
@@ -483,7 +526,14 @@ const ProductosScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+
+      <BottomNavBar
+        onNuevoPedido={() => navigation.navigate('NuevoPedido')}
+        onPlanificar={() => navigation.navigate('Planificar')}
+        onProductos={() => {}}
+        onEstadisticas={() => navigation.navigate('Estadisticas')}
+      />
+    </View>
   );
 };
 
@@ -491,6 +541,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 44,
   },
   header: {
     flexDirection: 'row',
@@ -774,6 +825,52 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: '700',
+  },
+  categoriasScroll: {
+    marginBottom: 12,
+  },
+  categoriaOption: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: colors.background,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  categoriaOptionSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  categoriaOptionText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  categoriaOptionTextSelected: {
+    color: '#FFF',
+  },
+  sinCategoriasContainer: {
+    backgroundColor: colors.background,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sinCategoriasText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 12,
+  },
+  crearCategoriaBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  crearCategoriaBtnText: {
+    fontSize: 14,
+    color: colors.info,
+    fontWeight: '600',
   },
 });
 

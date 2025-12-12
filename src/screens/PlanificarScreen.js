@@ -3,17 +3,18 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   TouchableOpacity,
   Alert,
   StatusBar,
+  Platform,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
-import { obtenerPedidos, obtenerClientes, guardarOrdenEntregas, obtenerOrdenEntregas } from '../storage/storage';
+import { obtenerPedidos, obtenerClientes, guardarOrdenEntregas, obtenerOrdenEntregas, eliminarPedido, actualizarPedido } from '../storage/storage';
 import ClienteCard from '../components/ClienteCard';
+import BottomNavBar from '../components/BottomNavBar';
 
 const PlanificarScreen = ({ navigation }) => {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date().toISOString().split('T')[0]);
@@ -44,8 +45,10 @@ const PlanificarScreen = ({ navigation }) => {
   useEffect(() => {
     const filtrarYOrdenar = async () => {
       const filtrados = todosPedidos.filter(pedido => {
-        const fechaPedido = pedido.fechaEntrega?.split('T')[0];
-        return fechaPedido === fechaSeleccionada;
+        if (!pedido.fechaEntrega) return false;
+        // Normalizar ambas fechas para comparación correcta
+        const fechaPedidoStr = pedido.fechaEntrega.split('T')[0];
+        return fechaPedidoStr === fechaSeleccionada;
       });
 
       const ordenGuardado = await obtenerOrdenEntregas(fechaSeleccionada);
@@ -109,6 +112,37 @@ const PlanificarScreen = ({ navigation }) => {
     }
   };
 
+  const handleEditarPedido = (pedido) => {
+    Alert.alert('Editar', `Funcionalidad de editar pedido de ${pedido.nombre} próximamente disponible`);
+  };
+
+  const handleEliminarPedido = async (pedido) => {
+    const resultado = await eliminarPedido(pedido.id);
+    if (resultado) {
+      Alert.alert('Éxito', 'Pedido eliminado correctamente');
+      cargarPedidos();
+    } else {
+      Alert.alert('Error', 'No se pudo eliminar el pedido');
+    }
+  };
+
+  const handleToggleElaborado = async (pedido) => {
+    const nuevoEstado = !pedido.elaborado;
+    const pedidoActualizado = { ...pedido, elaborado: nuevoEstado };
+    const resultado = await actualizarPedido(pedidoActualizado);
+    if (resultado) {
+      Alert.alert(
+        nuevoEstado ? '✅ Elaborado' : '⏳ Pendiente',
+        nuevoEstado 
+          ? `El pedido de ${pedido.nombre} ha sido marcado como elaborado`
+          : `El pedido de ${pedido.nombre} está pendiente de elaborar`
+      );
+      cargarPedidos();
+    } else {
+      Alert.alert('Error', 'No se pudo actualizar el pedido');
+    }
+  };
+
   const renderPedido = ({ item, index }) => {
     const estaSeleccionado = pedidoSeleccionado === item.id;
     return (
@@ -127,6 +161,9 @@ const PlanificarScreen = ({ navigation }) => {
           <ClienteCard
             cliente={item}
             onPress={() => seleccionarPedido(item)}
+            onEdit={handleEditarPedido}
+            onDelete={handleEliminarPedido}
+            onToggleElaborado={handleToggleElaborado}
           />
         </TouchableOpacity>
       </View>
@@ -142,7 +179,7 @@ const PlanificarScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       
       <View style={styles.header}>
@@ -220,7 +257,14 @@ const PlanificarScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmpty}
       />
-    </SafeAreaView>
+
+      <BottomNavBar
+        onNuevoPedido={() => navigation.navigate('NuevoPedido')}
+        onPlanificar={() => {}}
+        onProductos={() => navigation.navigate('Productos')}
+        onEstadisticas={() => navigation.navigate('Estadisticas')}
+      />
+    </View>
   );
 };
 
@@ -228,6 +272,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 44,
   },
   header: {
     flexDirection: 'row',

@@ -10,7 +10,25 @@ Aquí encontrarás los APK compilados de la aplicación.
 
 ## Versiones
 
-### v1.3.0 - Estadísticas Completas 📊 (ÚLTIMA)
+### v1.4.0 - Correcciones UI/UX 🛠️ (ÚLTIMA)
+**Fecha:** 12 de Diciembre, 2025
+
+**Correcciones y mejoras:**
+- 📱 **Barra de navegación fija** en todas las pantallas (no flotante)
+- 🔝 **Barra de estado corregida** - Los títulos ya no se cortan por la barra del teléfono
+- 📁 **Categoría obligatoria** al añadir productos (con selector visual)
+- 📅 **Filtro de fechas corregido** en Planificar (mostraba día anterior)
+- 🎨 **Logo con fondo gris claro** en menú (mejor visibilidad de letra blanca)
+- ✏️ **Botones funcionales** al mantener presionada tarjeta en Planificar:
+  - Marcar elaborado ✅
+  - Editar pedido ✏️
+  - Eliminar pedido 🗑️
+
+[📥 Descargar buchonapp-v1.4.0.apk](./buchonapp-v1.4.0.apk)
+
+---
+
+### v1.3.0 - Estadísticas Completas 📊
 **Fecha:** 12 de Diciembre, 2025
 
 **Nuevas características:**

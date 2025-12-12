@@ -4,10 +4,10 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  SafeAreaView,
   StatusBar,
   RefreshControl,
   Alert,
+  Platform,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../theme/colors';
@@ -172,7 +172,7 @@ const HomeScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       
       {/* Título de la app */}
@@ -224,7 +224,7 @@ const HomeScreen = ({ navigation }) => {
         onProductos={() => navigation.navigate('Productos')}
         onEstadisticas={() => navigation.navigate('Estadisticas')}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 44,
   },
   header: {
     alignItems: 'center',
@@ -254,7 +255,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   listContainer: {
-    paddingBottom: 110,
+    paddingBottom: 20,
     flexGrow: 1,
   },
   emptyContainer: {

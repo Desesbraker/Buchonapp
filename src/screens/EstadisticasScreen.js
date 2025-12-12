@@ -3,16 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   StatusBar,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
 import { obtenerPedidos, obtenerProductos, obtenerCategorias } from '../storage/storage';
+import BottomNavBar from '../components/BottomNavBar';
 
 const { width } = Dimensions.get('window');
 
@@ -182,7 +183,7 @@ const EstadisticasScreen = ({ navigation }) => {
   const maxVentaMes = Math.max(...(stats.ventasPorMes?.map(v => v.total) || [1]));
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
       
       {/* Header */}
@@ -397,7 +398,14 @@ const EstadisticasScreen = ({ navigation }) => {
 
         <View style={styles.bottomSpacing} />
       </ScrollView>
-    </SafeAreaView>
+
+      <BottomNavBar
+        onNuevoPedido={() => navigation.navigate('NuevoPedido')}
+        onPlanificar={() => navigation.navigate('Planificar')}
+        onProductos={() => navigation.navigate('Productos')}
+        onEstadisticas={() => {}}
+      />
+    </View>
   );
 };
 
@@ -405,6 +413,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 44,
   },
   header: {
     flexDirection: 'row',
