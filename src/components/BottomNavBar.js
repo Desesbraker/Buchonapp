@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
 
-const BottomNavBar = ({ onNuevoPedido, onPlanificar, onProductos, onEstadisticas, onHome }) => {
+const BottomNavBar = ({ onNuevoPedido, onPlanificar, onProductos, onEstadisticas }) => {
   return (
     <View style={styles.container}>
       <View style={styles.navBar}>
@@ -21,17 +21,6 @@ const BottomNavBar = ({ onNuevoPedido, onPlanificar, onProductos, onEstadisticas
             <Ionicons name="calendar-outline" size={24} color={colors.info} />
           </View>
           <Text style={styles.navLabel}>Planificar</Text>
-        </TouchableOpacity>
-
-        {/* Logo Central - Navega a Home */}
-        <TouchableOpacity style={styles.logoContainer} onPress={onHome} activeOpacity={0.8}>
-          <View style={styles.logoCircle}>
-            <Image
-              source={require('../../assets/logosinfondo.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </View>
         </TouchableOpacity>
 
         {/* Botón Productos */}
@@ -85,26 +74,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
     fontWeight: '600',
-  },
-  logoContainer: {
-    flex: 1.2,
-    alignItems: 'center',
-    marginTop: -35,
-  },
-  logoCircle: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: '#E8E8E8',
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...shadows.medium,
-    borderWidth: 3,
-    borderColor: colors.primary,
-  },
-  logo: {
-    width: 55,
-    height: 55,
   },
 });
 

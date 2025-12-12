@@ -318,7 +318,6 @@ const PlanificarScreen = ({ navigation }) => {
         onPlanificar={() => {}}
         onProductos={() => navigation.navigate('Productos')}
         onEstadisticas={() => navigation.navigate('Estadisticas')}
-        onHome={() => navigation.navigate('Home')}
       />
     </View>
   );

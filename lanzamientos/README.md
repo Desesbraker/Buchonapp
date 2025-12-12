@@ -10,7 +10,20 @@ Aquí encontrarás los APK compilados de la aplicación.
 
 ## Versiones
 
-### v1.6.0 - Edición de Pedidos ✏️ (ÚLTIMA)
+### v1.7.0 - Rediseño Header y Tarjetas 🎨 (ÚLTIMA)
+**Fecha:** 12 de Diciembre, 2025
+
+**Nuevas características y mejoras:**
+- 🖼️ **Nuevo header con logo** - La pantalla principal ahora muestra logo2.png junto a "buchonapp" y el subtítulo elegante "Ramos Buchones"
+- 📱 **Menú simplificado** - Se eliminó el logo central del menú, quedando solo los 4 botones de navegación
+- 📍 **Botón de ubicación en tarjetas** - Nuevo botón de ubicación que abre Google Maps con la dirección del cliente
+- 🔄 **Botones reubicados** - Los botones de WhatsApp, llamada y ubicación ahora están al final de la línea de la frase personalizada
+
+[📥 Descargar buchonapp-v1.7.0.apk](./buchonapp-v1.7.0.apk)
+
+---
+
+### v1.6.0 - Edición de Pedidos ✏️
 **Fecha:** 12 de Diciembre, 2025
 
 **Nuevas características y mejoras:**

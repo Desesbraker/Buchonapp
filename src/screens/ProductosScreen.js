@@ -608,7 +608,6 @@ const ProductosScreen = ({ navigation }) => {
         onPlanificar={() => navigation.navigate('Planificar')}
         onProductos={() => {}}
         onEstadisticas={() => navigation.navigate('Estadisticas')}
-        onHome={() => navigation.navigate('Home')}
       />
     </View>
   );

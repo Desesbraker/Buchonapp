@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../theme/colors';
@@ -177,7 +178,15 @@ const HomeScreen = ({ navigation }) => {
       
       {/* Título de la app */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>🌹 BuchonApp</Text>
+        <View style={styles.headerRow}>
+          <Image
+            source={require('../../logo/logo2.png')}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+          <Text style={styles.headerTitle}>buchonapp</Text>
+        </View>
+        <Text style={styles.headerSubtitle}>Ramos Buchones</Text>
       </View>
 
       {/* Buscador */}
@@ -223,7 +232,6 @@ const HomeScreen = ({ navigation }) => {
         onPlanificar={() => navigation.navigate('Planificar')}
         onProductos={() => navigation.navigate('Productos')}
         onEstadisticas={() => navigation.navigate('Estadisticas')}
-        onHome={() => {}}
       />
     </View>
   );
@@ -241,10 +249,27 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     backgroundColor: colors.background,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerLogo: {
+    width: 40,
+    height: 40,
+  },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
     color: colors.primary,
+    letterSpacing: 1,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: colors.textSecondary,
+    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+    marginTop: 2,
   },
   resultadosHeader: {
     paddingHorizontal: 16,

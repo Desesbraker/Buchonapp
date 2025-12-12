@@ -91,6 +91,11 @@ const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado }) 
     Linking.openURL(`whatsapp://send?phone=${numero}`);
   };
 
+  const abrirUbicacion = () => {
+    const direccion = encodeURIComponent(cliente.direccion);
+    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${direccion}`);
+  };
+
   const montoDebe = cliente.montoTotal - cliente.montoAbonado;
 
   return (
@@ -142,32 +147,17 @@ const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado }) 
           </View>
         </View>
 
-        {/* Columna derecha con fecha y botones */}
+        {/* Columna derecha con fecha */}
         <View style={styles.rightColumn}>
           <View style={styles.fechaContainer}>
             <Ionicons name="calendar-outline" size={14} color={colors.primary} />
             <Text style={styles.fechaTexto}>{formatearFecha(cliente.fechaEntrega)}</Text>
           </View>
           <Text style={styles.horaTexto}>{cliente.horaEntrega}</Text>
-          
-          <View style={styles.botonesContacto}>
-            <TouchableOpacity 
-              style={[styles.botonContacto, { backgroundColor: colors.whatsapp }]} 
-              onPress={abrirWhatsApp}
-            >
-              <Ionicons name="logo-whatsapp" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.botonContacto, { backgroundColor: colors.info }]} 
-              onPress={llamar}
-            >
-              <Ionicons name="call" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
 
-      {/* Número de pedido */}
+      {/* Número de pedido, frase y botones de contacto */}
       <View style={styles.pedidoRow}>
         <Text style={styles.pedidoNumero}>#{cliente.numeroPedido}</Text>
         {cliente.frasePersonalizada && (
@@ -175,6 +165,26 @@ const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado }) 
             "{cliente.frasePersonalizada}"
           </Text>
         )}
+        <View style={styles.botonesContacto}>
+          <TouchableOpacity 
+            style={[styles.botonContacto, { backgroundColor: colors.info }]} 
+            onPress={abrirUbicacion}
+          >
+            <Ionicons name="location" size={16} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.botonContacto, { backgroundColor: colors.whatsapp }]} 
+            onPress={abrirWhatsApp}
+          >
+            <Ionicons name="logo-whatsapp" size={16} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.botonContacto, { backgroundColor: colors.primary }]} 
+            onPress={llamar}
+          >
+            <Ionicons name="call" size={16} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -262,7 +272,7 @@ const styles = StyleSheet.create({
   },
   rightColumn: {
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
   fechaContainer: {
     flexDirection: 'row',
@@ -281,13 +291,12 @@ const styles = StyleSheet.create({
   },
   botonesContacto: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 8,
+    gap: 6,
   },
   botonContacto: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
   },

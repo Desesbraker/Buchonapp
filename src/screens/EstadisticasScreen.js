@@ -404,7 +404,6 @@ const EstadisticasScreen = ({ navigation }) => {
         onPlanificar={() => navigation.navigate('Planificar')}
         onProductos={() => navigation.navigate('Productos')}
         onEstadisticas={() => {}}
-        onHome={() => navigation.navigate('Home')}
       />
     </View>
   );
