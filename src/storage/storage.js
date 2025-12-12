@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CLIENTES_KEY = '@buchonapp_clientes';
 const PRODUCTOS_KEY = '@buchonapp_productos';
+const CATEGORIAS_KEY = '@buchonapp_categorias';
 const INVENTARIO_KEY = '@buchonapp_inventario';
 const PEDIDOS_KEY = '@buchonapp_pedidos';
 const CONTADOR_PEDIDOS_KEY = '@buchonapp_contador_pedidos';
@@ -171,6 +172,102 @@ export const obtenerProductos = async () => {
   } catch (error) {
     console.error('Error obteniendo productos:', error);
     return [];
+  }
+};
+
+export const agregarProducto = async (producto) => {
+  try {
+    const productos = await obtenerProductos();
+    const nuevoProducto = {
+      ...producto,
+      id: Date.now().toString(),
+      fechaCreacion: new Date().toISOString(),
+    };
+    productos.unshift(nuevoProducto);
+    await guardarProductos(productos);
+    return nuevoProducto;
+  } catch (error) {
+    console.error('Error agregando producto:', error);
+    return null;
+  }
+};
+
+export const actualizarProducto = async (productoActualizado) => {
+  try {
+    const productos = await obtenerProductos();
+    const index = productos.findIndex(p => p.id === productoActualizado.id);
+    if (index !== -1) {
+      productos[index] = { ...productoActualizado, fechaActualizacion: new Date().toISOString() };
+      await guardarProductos(productos);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error actualizando producto:', error);
+    return false;
+  }
+};
+
+export const eliminarProducto = async (productoId) => {
+  try {
+    const productos = await obtenerProductos();
+    const productosFiltrados = productos.filter(p => p.id !== productoId);
+    await guardarProductos(productosFiltrados);
+    return true;
+  } catch (error) {
+    console.error('Error eliminando producto:', error);
+    return false;
+  }
+};
+
+// ============ CATEGORÍAS ============
+
+export const guardarCategorias = async (categorias) => {
+  try {
+    await AsyncStorage.setItem(CATEGORIAS_KEY, JSON.stringify(categorias));
+    return true;
+  } catch (error) {
+    console.error('Error guardando categorías:', error);
+    return false;
+  }
+};
+
+export const obtenerCategorias = async () => {
+  try {
+    const data = await AsyncStorage.getItem(CATEGORIAS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error obteniendo categorías:', error);
+    return [];
+  }
+};
+
+export const agregarCategoria = async (categoria) => {
+  try {
+    const categorias = await obtenerCategorias();
+    const nuevaCategoria = {
+      ...categoria,
+      id: Date.now().toString(),
+      fechaCreacion: new Date().toISOString(),
+    };
+    categorias.unshift(nuevaCategoria);
+    await guardarCategorias(categorias);
+    return nuevaCategoria;
+  } catch (error) {
+    console.error('Error agregando categoría:', error);
+    return null;
+  }
+};
+
+export const eliminarCategoria = async (categoriaId) => {
+  try {
+    const categorias = await obtenerCategorias();
+    const categoriasFiltradas = categorias.filter(c => c.id !== categoriaId);
+    await guardarCategorias(categoriasFiltradas);
+    return true;
+  } catch (error) {
+    console.error('Error eliminando categoría:', error);
+    return false;
   }
 };
 
