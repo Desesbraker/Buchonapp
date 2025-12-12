@@ -154,6 +154,23 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const handleToggleEntregado = async (cliente) => {
+    const nuevoEstado = !cliente.entregado;
+    const pedidoActualizado = { ...cliente, entregado: nuevoEstado };
+    const resultado = await actualizarPedido(pedidoActualizado);
+    if (resultado) {
+      Alert.alert(
+        nuevoEstado ? '🚚 Entregado' : '📦 No entregado',
+        nuevoEstado 
+          ? `El pedido de ${cliente.nombre} ha sido marcado como entregado`
+          : `El pedido de ${cliente.nombre} está pendiente de entregar`
+      );
+      cargarClientes();
+    } else {
+      Alert.alert('Error', 'No se pudo actualizar el pedido');
+    }
+  };
+
   const renderCliente = ({ item }) => (
     <ClienteCard 
       cliente={item} 
@@ -161,6 +178,7 @@ const HomeScreen = ({ navigation }) => {
       onEdit={handleEditarCliente}
       onDelete={handleEliminarCliente}
       onToggleElaborado={handleToggleElaborado}
+      onToggleEntregado={handleToggleEntregado}
     />
   );
 
@@ -184,9 +202,8 @@ const HomeScreen = ({ navigation }) => {
             style={styles.headerLogo}
             resizeMode="contain"
           />
-          <Text style={styles.headerTitle}>buchonapp</Text>
+          <Text style={styles.headerTitle}>Ramos Buchones</Text>
         </View>
-        <Text style={styles.headerSubtitle}>Ramos Buchones</Text>
       </View>
 
       {/* Buscador */}
@@ -259,17 +276,11 @@ const styles = StyleSheet.create({
     height: 40,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '700',
     color: colors.primary,
-    letterSpacing: 1,
-  },
-  headerSubtitle: {
-    fontSize: 14,
     fontStyle: 'italic',
-    color: colors.textSecondary,
     fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
-    marginTop: 2,
   },
   resultadosHeader: {
     paddingHorizontal: 16,

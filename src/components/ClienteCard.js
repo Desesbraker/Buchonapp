@@ -3,10 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-
 import { Ionicons } from '@expo/vector-icons';
 import { colors, shadows } from '../theme/colors';
 
-const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado }) => {
+const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado, onToggleEntregado }) => {
   
   const handleLongPress = () => {
     const esElaborado = cliente.elaborado === true;
+    const esEntregado = cliente.entregado === true;
     Alert.alert(
       `Pedido #${cliente.numeroPedido}`,
       `¿Qué deseas hacer con el pedido de ${cliente.nombre}?`,
@@ -18,6 +19,10 @@ const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado }) 
         {
           text: esElaborado ? '⏳ Pendiente de elaborar' : '✅ Marcar elaborado',
           onPress: () => onToggleElaborado && onToggleElaborado(cliente),
+        },
+        {
+          text: esEntregado ? '📦 Marcar no entregado' : '🚚 Marcar entregado',
+          onPress: () => onToggleEntregado && onToggleEntregado(cliente),
         },
         {
           text: 'Editar',
@@ -100,19 +105,31 @@ const ClienteCard = ({ cliente, onPress, onEdit, onDelete, onToggleElaborado }) 
 
   return (
     <TouchableOpacity 
-      style={[styles.card, cliente.elaborado && styles.cardElaborado]} 
+      style={[
+        styles.card, 
+        cliente.elaborado && styles.cardElaborado,
+        cliente.entregado && styles.cardEntregado
+      ]} 
       onPress={onPress} 
       onLongPress={handleLongPress}
       delayLongPress={500}
       activeOpacity={0.7}
     >
-      {/* Badge de elaborado */}
-      {cliente.elaborado && (
-        <View style={styles.elaboradoBadge}>
-          <Ionicons name="checkmark-circle" size={14} color="#FFF" />
-          <Text style={styles.elaboradoText}>Elaborado</Text>
-        </View>
-      )}
+      {/* Badges de estado */}
+      <View style={styles.badgesContainer}>
+        {cliente.elaborado && (
+          <View style={styles.elaboradoBadge}>
+            <Ionicons name="checkmark-circle" size={14} color="#FFF" />
+            <Text style={styles.elaboradoText}>Elaborado</Text>
+          </View>
+        )}
+        {cliente.entregado && (
+          <View style={styles.entregadoBadge}>
+            <Ionicons name="car" size={14} color="#FFF" />
+            <Text style={styles.entregadoText}>Entregado</Text>
+          </View>
+        )}
+      </View>
       
       <View style={styles.content}>
         {/* Información principal */}
@@ -203,10 +220,20 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.success,
   },
-  elaboradoBadge: {
+  cardEntregado: {
+    borderWidth: 2,
+    borderColor: colors.info,
+    opacity: 0.85,
+  },
+  badgesContainer: {
     position: 'absolute',
     top: -8,
     right: 16,
+    flexDirection: 'row',
+    gap: 6,
+    zIndex: 1,
+  },
+  elaboradoBadge: {
     backgroundColor: colors.success,
     flexDirection: 'row',
     alignItems: 'center',
@@ -214,9 +241,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    zIndex: 1,
   },
   elaboradoText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  entregadoBadge: {
+    backgroundColor: colors.info,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  entregadoText: {
     color: '#FFF',
     fontSize: 11,
     fontWeight: '700',

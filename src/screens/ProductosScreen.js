@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { colors, shadows } from '../theme/colors';
 import {
   obtenerProductos,
@@ -67,15 +68,52 @@ const ProductosScreen = ({ navigation }) => {
   );
 
   const seleccionarImagen = async (tipo, esProducto = true) => {
-    // Funcionalidad de imagen deshabilitada por ahora
-    Alert.alert(
-      'Próximamente',
-      'La selección de imágenes estará disponible en una próxima actualización'
+    const { status } = await (tipo === 'camara' 
+      ? ImagePicker.requestCameraPermissionsAsync()
+      : ImagePicker.requestMediaLibraryPermissionsAsync()
     );
+    
+    if (status !== 'granted') {
+      Alert.alert('Permisos necesarios', `Se necesita acceso a la ${tipo === 'camara' ? 'cámara' : 'galería'}`);
+      return;
+    }
+
+    let result;
+    if (tipo === 'camara') {
+      result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+    } else {
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+    }
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      if (esProducto) {
+        setNuevoProducto(prev => ({ ...prev, imagen: result.assets[0].uri }));
+      } else {
+        setNuevaCategoria(prev => ({ ...prev, imagen: result.assets[0].uri }));
+      }
+    }
   };
 
   const mostrarOpcionesImagen = (esProducto = true) => {
-    seleccionarImagen('galeria', esProducto);
+    Alert.alert(
+      'Seleccionar imagen',
+      'Elige una opción',
+      [
+        { text: 'Cámara', onPress: () => seleccionarImagen('camara', esProducto) },
+        { text: 'Galería', onPress: () => seleccionarImagen('galeria', esProducto) },
+        { text: 'Cancelar', style: 'cancel' },
+      ]
+    );
   };
 
   const abrirModalEditarProducto = (producto) => {

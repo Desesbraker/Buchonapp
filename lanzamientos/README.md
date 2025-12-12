@@ -10,7 +10,21 @@ Aquí encontrarás los APK compilados de la aplicación.
 
 ## Versiones
 
-### v1.7.0 - Rediseño Header y Tarjetas 🎨 (ÚLTIMA)
+### v1.8.0 - Entregado e Imágenes 📸 (ÚLTIMA)
+**Fecha:** 12 de Diciembre, 2025
+
+**Nuevas características y mejoras:**
+- 🚚 **Marcar como entregado** - Nueva opción al mantener presionada una tarjeta para marcar pedidos como entregados
+- 🏷️ **Badge de entregado** - Los pedidos entregados muestran un badge azul distintivo
+- 📸 **Selector de imágenes funcional** - Ahora puedes tomar fotos o seleccionar de galería en productos y pedidos
+- 🖼️ **Header actualizado** - Título cambiado a "Ramos Buchones" con fuente elegante
+- ✅ **Corregida edición desde Planificar** - Ya no se pone en blanco al editar pedidos
+
+[📥 Descargar buchonapp-v1.8.0.apk](./buchonapp-v1.8.0.apk)
+
+---
+
+### v1.7.0 - Rediseño Header y Tarjetas 🎨
 **Fecha:** 12 de Diciembre, 2025
 
 **Nuevas características y mejoras:**

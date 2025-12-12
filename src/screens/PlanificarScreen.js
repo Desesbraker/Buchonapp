@@ -188,6 +188,23 @@ const PlanificarScreen = ({ navigation }) => {
     }
   };
 
+  const handleToggleEntregado = async (pedido) => {
+    const nuevoEstado = !pedido.entregado;
+    const pedidoActualizado = { ...pedido, entregado: nuevoEstado };
+    const resultado = await actualizarPedido(pedidoActualizado);
+    if (resultado) {
+      Alert.alert(
+        nuevoEstado ? '🚚 Entregado' : '📦 No entregado',
+        nuevoEstado 
+          ? `El pedido de ${pedido.nombre} ha sido marcado como entregado`
+          : `El pedido de ${pedido.nombre} está pendiente de entregar`
+      );
+      cargarPedidos();
+    } else {
+      Alert.alert('Error', 'No se pudo actualizar el pedido');
+    }
+  };
+
   const renderPedido = ({ item, index }) => {
     const estaSeleccionado = pedidoSeleccionado === item.id;
     return (
@@ -209,6 +226,7 @@ const PlanificarScreen = ({ navigation }) => {
             onEdit={handleEditarPedido}
             onDelete={handleEliminarPedido}
             onToggleElaborado={handleToggleElaborado}
+            onToggleEntregado={handleToggleEntregado}
           />
         </TouchableOpacity>
       </View>
